@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trama Moda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="store.css">
+</head>
+<body>
+  <div class="announce">Frete grátis acima de R$ 299 · Use <strong>BEMVINDO10</strong> e ganhe 10% na primeira compra</div>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <button class="menu-btn" id="menu-btn" aria-label="Abrir menu">☰</button>
+      <a href="#/" class="logo">Trama</a>
+      <nav class="nav" id="nav">
+        <a href="#/catalogo" data-nav="">Tudo</a>
+        <a href="#/catalogo?cat=feminino" data-nav="feminino">Feminino</a>
+        <a href="#/catalogo?cat=masculino" data-nav="masculino">Masculino</a>
+        <a href="#/catalogo?cat=calcados" data-nav="calcados">Calçados</a>
+        <a href="#/catalogo?cat=acessorios" data-nav="acessorios">Acessórios</a>
+        <a href="#/catalogo?sort=promo" class="sale">Sale</a>
+      </nav>
+      <div class="actions">
+        <button class="icon-btn" id="search-btn" title="Buscar" aria-label="Buscar">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </button>
+        <a href="#/favoritos" class="icon-btn hide-sm" title="Favoritos" aria-label="Favoritos">
+          <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+          <span class="badge" id="fav-count" hidden>0</span>
+        </a>
+        <a href="#/conta" class="icon-btn" title="Minha conta">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          <span id="account-label">Entrar</span>
+        </a>
+        <button class="icon-btn" id="cart-btn" title="Sacola" aria-label="Abrir sacola">
+          <svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+          <span class="badge" id="cart-count">0</span>
+        </button>
+      </div>
+    </div>
+    <div class="search-panel" id="search-panel" hidden>
+      <div class="container">
+        <form id="search-form" autocomplete="off">
+          <input id="search-input" type="search" placeholder="O que você está procurando?" aria-label="Buscar produtos">
+        </form>
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="logo light">Trama</div>
+        <p>Moda atemporal, feita para durar. Peças selecionadas com cuidado para o seu dia a dia.</p>
+      </div>
+      <div>
+        <h4>Loja</h4>
+        <a href="#/catalogo?cat=feminino">Feminino</a>
+        <a href="#/catalogo?cat=masculino">Masculino</a>
+        <a href="#/catalogo?cat=calcados">Calçados</a>
+        <a href="#/catalogo?cat=acessorios">Acessórios</a>
+      </div>
+      <div>
+        <h4>Ajuda</h4>
+        <a href="#/conta">Minha conta</a>
+        <a href="#/conta">Acompanhar pedido</a>
+        <a href="#/favoritos">Favoritos</a>
+        <span>Trocas em até 30 dias</span>
+      </div>
+      <form class="newsletter" id="newsletter">
+        <h4>Newsletter</h4>
+        <p>Receba lançamentos e ofertas exclusivas.</p>
+        <div><input type="email" required placeholder="Seu e-mail" aria-label="Seu e-mail"><button>Assinar</button></div>
+      </form>
+    </div>
+    <div class="container footer-bottom">© 2026 Trama Moda · Loja de demonstração.</div>
+  </footer>
+
+  <!-- Sacola lateral -->
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="drawer" id="drawer" aria-label="Sacola" aria-hidden="true">
+    <div class="drawer-head">
+      <h3>Sua sacola</h3>
+      <button class="icon-btn" id="drawer-close" aria-label="Fechar">✕</button>
+    </div>
+    <div class="drawer-body" id="drawer-body"></div>
+    <div class="drawer-foot" id="drawer-foot"></div>
+  </aside>
+
+  <!-- Modal genérico -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box">
+      <button class="icon-btn modal-close" id="modal-close" aria-label="Fechar">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="config.js"></script>
+  <script src="products.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
