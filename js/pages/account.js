@@ -63,7 +63,7 @@ function pageAccount(params) {
               <div class="account-order-top">
                 <div>
                   <strong>Pedido #${o.id}</strong>
-                  <div class="muted small">${fmtDate(o.date)} · ${esc(o.methodLabel)}</div>
+                  <div class="muted small">${fmtDate(o.date)}, ${esc(o.methodLabel)}</div>
                 </div>
                 <span class="tag ${o.status === "Cancelado" ? "out" : o.status === "Entregue" ? "ok" : "dark"}">
                   ${o.status}

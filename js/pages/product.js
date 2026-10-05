@@ -522,7 +522,7 @@ function pageProduct(id) {
       </p>
       ${quotes.map((q) => `
         <div class="summary-line small">
-          <span>${esc(q.name)} · até ${fmtDay(addBusinessDays(q.days))}</span>
+          <span>${esc(q.name)} — até ${fmtDay(addBusinessDays(q.days))}</span>
           <strong>${q.price ? brl(q.price) : "Grátis"}</strong>
         </div>
       `).join("")}

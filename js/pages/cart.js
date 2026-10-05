@@ -35,7 +35,7 @@ function pageCart() {
                   <a href="#/produto/${p.id}">${thumb(p)}</a>
                   <div class="cart-row-info">
                     <a href="#/produto/${p.id}" class="cart-row-name">${esc(p.name)}</a>
-                    <div class="cart-row-meta">Tamanho: ${esc(i.size)} · ${brl(p.price)} cada</div>
+                    <div class="cart-row-meta">Tamanho: ${esc(i.size)}, ${brl(p.price)} cada</div>
                     ${left <= 2 ? `<div class="small" style="color: var(--acafrao); font-weight: 600;">Restam apenas ${left} em estoque!</div>` : ""}
 
                     <div class="cart-row-actions">

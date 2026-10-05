@@ -231,7 +231,7 @@ function pageCheckout() {
                     ${thumb(p, "sm")}
                     <div class="checkout-mini-row-info">
                       <strong>${esc(p.name)}</strong>
-                      <span class="muted small">Tam. ${esc(i.size)} · Qtd: ${i.qty}</span>
+                      <span class="muted small">Tam. ${esc(i.size)}, Qtd: ${i.qty}</span>
                     </div>
                     <span class="nums"><strong>${brl(p.price * i.qty)}</strong></span>
                   </div>
@@ -398,7 +398,7 @@ function pageCheckout() {
           const now = Date.now();
           const pDiscount = paymentMethod === "pix" ? currTotals.total * CONFIG.pixDiscount : 0;
           const labels = {
-            card: cardData && `${cardData.brand} final ${cardData.last4} · ${cardData.installments}x`,
+            card: cardData && `${cardData.brand} final ${cardData.last4}, ${cardData.installments}x`,
             pix: `Pix (${CONFIG.pixDiscount * 100}% off)`,
             boleto: "Boleto bancário",
           };

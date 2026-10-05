@@ -27,7 +27,7 @@ function pageOrder(id) {
         </div>
         <h1>${cancelled ? "Pedido cancelado" : paid ? "Pedido confirmado!" : "Pedido recebido!"}</h1>
         <p class="muted">
-          Pedido <strong>#${order.id}</strong> · Realizado em ${fmtDate(order.date)}
+          Pedido <strong>#${order.id}</strong> — Realizado em ${fmtDate(order.date)}
         </p>
       </div>
 
@@ -55,7 +55,7 @@ function pageOrder(id) {
 
           ${order.tracking ? `
             <p class="small" style="margin-top: var(--e-4);">
-              Código de rastreio: <strong>${order.tracking}</strong> · 
+              Código de rastreio: <strong>${order.tracking}</strong> — 
               <a href="https://rastreamento.correios.com.br/app/index.php" target="_blank" rel="noopener" class="link">Rastrear encomenda</a>
             </p>
           ` : ""}
@@ -112,7 +112,7 @@ function pageOrder(id) {
                 <a href="#/produto/${i.id}">${p ? thumb(p, "sm") : ""}</a>
                 <div>
                   <a href="#/produto/${i.id}" class="link" style="font-weight: 600;">${esc(i.name)}</a>
-                  <div class="muted small">Tam. ${esc(i.size)} · Qtd: ${i.qty}</div>
+                  <div class="muted small">Tam. ${esc(i.size)}, Qtd: ${i.qty}</div>
                 </div>
                 <span class="nums"><strong>${brl(i.price * i.qty)}</strong></span>
               </div>
@@ -149,7 +149,7 @@ function pageOrder(id) {
             <p class="muted small" style="margin: 4px 0 0;">
               ${esc(order.recipient)}<br>
               ${esc(order.address.street)}, ${esc(order.address.number)}${order.address.extra ? ` - ${esc(order.address.extra)}` : ""}<br>
-              ${esc(order.address.district)} · ${esc(order.address.city)} - ${esc(order.address.uf)}<br>
+              ${esc(order.address.district)}, ${esc(order.address.city)} - ${esc(order.address.uf)}<br>
               CEP ${esc(order.address.cep)}
             </p>
           </div>

@@ -1,1 +1,257 @@
-/* Estilos da página: admin (preenchido na tarefa desta página). */
+/* ===== Painel administrativo ===== */
+.admin-view {
+  display: grid;
+  gap: var(--e-6);
+  padding-block: var(--e-5) var(--e-8);
+}
+
+.admin-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-4);
+  padding-bottom: var(--e-4);
+  border-bottom: var(--fio-fino);
+}
+
+.admin-head h1 {
+  margin: 0;
+}
+
+/* Fita de fatos (KPI strip) — sem cartões, separada por fios finos */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--e-4);
+  padding: var(--e-4) 0;
+  border-bottom: var(--fio-fino);
+}
+
+.kpi-fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.kpi-label {
+  font-size: var(--t-13);
+  color: var(--chumbo);
+}
+
+.kpi-value {
+  font-family: var(--fonte-titulo);
+  font-size: var(--t-25);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--anil);
+}
+
+.kpi-sub {
+  font-size: var(--t-13);
+  color: var(--chumbo);
+}
+
+/* Gráfico de barras dos últimos 14 dias */
+.admin-chart-section {
+  display: grid;
+  gap: var(--e-3);
+  padding: var(--e-4);
+  background: var(--nevoa);
+  border-radius: var(--raio);
+}
+
+.admin-chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-4);
+}
+
+.admin-chart-head h2 {
+  font-size: var(--t-16);
+  margin: 0;
+}
+
+.admin-chart-empty {
+  padding: var(--e-6) var(--e-4);
+  text-align: center;
+  color: var(--chumbo);
+  font-size: var(--t-14);
+}
+
+.chart-bars-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 180px;
+  padding-top: var(--e-4);
+  padding-bottom: var(--e-1);
+  border-bottom: 1px solid var(--linha);
+  overflow-x: auto;
+}
+
+.chart-col {
+  flex: 1;
+  min-width: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.chart-bar-slot {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.chart-bar {
+  width: 100%;
+  max-width: 32px;
+  background: var(--anil);
+  border-radius: 4px 4px 0 0;
+  min-height: 3px;
+  transition: opacity var(--rapido);
+}
+
+.chart-col.is-today .chart-bar {
+  background: var(--acafrao);
+}
+
+.chart-col:hover .chart-bar {
+  opacity: 0.85;
+}
+
+.chart-col-label {
+  font-size: var(--t-13);
+  color: var(--chumbo);
+  white-space: nowrap;
+}
+
+.chart-col.is-today .chart-col-label {
+  font-weight: 700;
+  color: var(--anil);
+}
+
+/* Toolbar de filtros nas abas */
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  margin-bottom: var(--e-4);
+}
+
+.admin-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+/* Badge de presente nos pedidos */
+.tag-gift {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-1);
+  padding: 2px 8px;
+  border-radius: var(--raio-pilula);
+  background: var(--nevoa);
+  color: var(--anil);
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.tag-gift svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Tabela de produtos e inputs de estoque */
+.stock-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+}
+
+.stock-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: var(--raio);
+  background: var(--nevoa);
+  font-size: var(--t-13);
+}
+
+.stock-box input {
+  width: 48px;
+  text-align: center;
+  padding: 2px 4px;
+  font-size: var(--t-14);
+}
+
+.stock-box.is-zero {
+  opacity: 0.6;
+}
+
+/* Edição de preço e status do produto */
+.prod-edit-cell {
+  display: grid;
+  gap: var(--e-1);
+}
+
+.prod-field-row {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.prod-field-row label {
+  font-size: var(--t-13);
+  color: var(--chumbo);
+  width: 50px;
+}
+
+.prod-field-row input {
+  width: 80px;
+  padding: 4px 8px;
+  font-size: var(--t-13);
+}
+
+.prod-actions-row {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  margin-top: 4px;
+}
+
+.prod-err {
+  font-size: var(--t-13);
+  color: var(--pitanga);
+  margin: 0;
+}
+
+.admin-prod-info {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+.admin-empty-msg {
+  padding: var(--e-4) 0;
+}
+
+/* Celular: alternar rótulos no gráfico para caber */
+@media (max-width: 600px) {
+  .chart-col:nth-child(even) .chart-col-label {
+    display: none;
+  }
+}

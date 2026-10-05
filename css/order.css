@@ -224,8 +224,8 @@
 /* Estilos de Impressão */
 @media print {
   body {
-    background: #fff !important;
-    color: #000 !important;
+    background: white !important;
+    color: black !important;
   }
 
   .no-print,
@@ -245,7 +245,7 @@
 
   .order-timeline-card,
   .order-details-card {
-    border: 1px solid #ccc !important;
+    border: 1px solid var(--linha) !important;
     box-shadow: none !important;
   }
 }
