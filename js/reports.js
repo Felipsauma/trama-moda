@@ -1,8 +1,8 @@
 // ===== Números do painel, faturamento por dia e exportação =====
-const isPaid = (o) => !["Aguardando pagamento", "Cancelado"].includes(o.status);
+const isPaidOrder = (o) => !["Aguardando pagamento", "Cancelado"].includes(o.status);
 
 function storeKpis(list) {
-  const paid = list.filter(isPaid);
+  const paid = list.filter(isPaidOrder);
   const revenue = paid.reduce((s, o) => s + o.total, 0);
   const skus = PRODUCTS.flatMap((p) => p.sizes.map((s) => stock.get(p.id, s)));
   return {
@@ -15,8 +15,8 @@ function storeKpis(list) {
   };
 }
 
-const two = (n) => String(n).padStart(2, "0");
-const dayKey = (d) => `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`;
+const pad2 = (n) => String(n).padStart(2, "0");
+const localDayKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 
 // Um item por dia local, do mais antigo até o dia de `now`; só pedidos pagos
 function revenueByDay(list, days, now = Date.now()) {
@@ -24,11 +24,11 @@ function revenueByDay(list, days, now = Date.now()) {
   const out = [];
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(end.getFullYear(), end.getMonth(), end.getDate() - i);
-    out.push({ date: dayKey(d), label: `${two(d.getDate())}/${two(d.getMonth() + 1)}`, total: 0, count: 0 });
+    out.push({ date: localDayKey(d), label: `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`, total: 0, count: 0 });
   }
   const byDate = Object.fromEntries(out.map((d) => [d.date, d]));
-  list.filter(isPaid).forEach((o) => {
-    const day = byDate[dayKey(new Date(o.date))];
+  list.filter(isPaidOrder).forEach((o) => {
+    const day = byDate[localDayKey(new Date(o.date))];
     if (day) { day.total += o.total; day.count++; }
   });
   return out;
@@ -51,7 +51,7 @@ function ordersToCsv(list) {
   const num = (n) => (Number(n) || 0).toFixed(2).replace(".", ",");
   const when = (ts) => {
     const d = new Date(ts);
-    return `${two(d.getDate())}/${two(d.getMonth() + 1)}/${d.getFullYear()} ${two(d.getHours())}:${two(d.getMinutes())}`;
+    return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   };
   const rows = list.map((o) => [
     text(o.id), text(when(o.date)), text(o.recipient), text(o.email),
@@ -60,5 +60,5 @@ function ordersToCsv(list) {
     text(o.methodLabel), text(o.status),
   ].join(";"));
   const header = "Pedido;Data;Cliente;E-mail;Itens;Subtotal;Desconto;Frete;Total;Pagamento;Status";
-  return "﻿" + [header, ...rows].join("\r\n");
+  return "\uFEFF" + [header, ...rows].join("\r\n");
 }

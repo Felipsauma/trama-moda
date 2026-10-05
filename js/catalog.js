@@ -12,15 +12,23 @@ const sortSizes = (list) => {
 const ORIGINAL_PRICES = {};
 
 const catalog = {
-  all: () => store.get(KEYS.catalog, {}),
+  // O que está no localStorage não é confiável: raiz que não seja objeto vale como vazia
+  all() {
+    const saved = store.get(KEYS.catalog, {});
+    return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+  },
   apply() {
     const adjust = this.all();
     PRODUCTS.forEach((p) => {
       ORIGINAL_PRICES[p.id] ||= { price: p.price, oldPrice: p.oldPrice ?? null };
-      const base = ORIGINAL_PRICES[p.id], a = adjust[p.id] || {};
-      p.price = a.price ?? base.price;
-      p.oldPrice = "oldPrice" in a ? a.oldPrice : base.oldPrice;
-      p.hidden = !!a.hidden;
+      const base = ORIGINAL_PRICES[p.id], saved = adjust[p.id];
+      const a = saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {}; // entrada corrompida: ignora
+      // Campo inválido é ignorado e vale o original de products.js
+      p.price = Number.isFinite(a.price) && a.price > 0 ? a.price : base.price;
+      // null = o admin tirou a promoção; número só vale se for maior que o preço aplicado
+      const validOld = (n) => Number.isFinite(n) && n > p.price;
+      p.oldPrice = a.oldPrice === null ? null : validOld(a.oldPrice) ? a.oldPrice : validOld(base.oldPrice) ? base.oldPrice : null;
+      p.hidden = a.hidden === true;
     });
   },
   set(id, { price, oldPrice = null, hidden = false }) {
@@ -124,7 +132,7 @@ function parseCatalogParams(params) {
   let promo = params.get("promo") === "1";
   if (sort === "promo") { promo = true; sort = "desconto"; } // endereço antigo
   return {
-    cat: CATEGORIES[params.get("cat")] ? params.get("cat") : "",
+    cat: Object.hasOwn(CATEGORIES, params.get("cat")) ? params.get("cat") : "",
     q: (params.get("q") || "").trim(),
     sizes: (params.get("tam") || "").split(",").filter(Boolean),
     min: num("min"),
@@ -169,8 +177,13 @@ const measures = {
 };
 
 // Tamanho provável para as medidas m ({ bust, waist, hip } ou { foot }, em cm); null se não der para calcular
-function recommendSize(p, m = {}) {
-  const val = (k) => (m[k] === "" || m[k] == null ? NaN : Number(m[k]));
+function recommendSize(p, m) {
+  m ??= {}; // measures.get() é null para quem ainda não informou medidas
+  const val = (k) => {
+    let v = m[k];
+    if (typeof v === "string") v = v.trim().replace(",", "."); // pt-BR digita 84,5
+    return v === "" || v == null ? NaN : Number(v);
+  };
   let table, index;
   if (p.cat === "calcados") {
     const foot = val("foot");

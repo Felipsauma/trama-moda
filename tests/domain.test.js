@@ -261,7 +261,7 @@ test("gift: padrão, corte em 200 caracteres e aviso", () => {
   assert.deepEqual(get("seen"), ["cart"]);
 });
 
-test("cart.totals: embalagem para presente entra no total, sem frete grátis nem desconto", () => {
+test("cart.totals: embalagem para presente entra no total e não recebe desconto de cupom", () => {
   const { get } = load();
   const { id, size, price } = withStock(get);
   assert.equal(get("CONFIG.giftWrapPrice"), 9.9);
@@ -354,4 +354,82 @@ test("reviews.summary e reviews.sorted", () => {
   assert.deepEqual(get("reviews.sorted(1, 'piores').map((r) => r.rating)"), [1, 3, 5, 5]);
   // empate de nota: o mais recente primeiro
   assert.deepEqual(get("reviews.sorted(1, 'melhores').map((r) => r.date)").slice(0, 2), [3, 1]);
+});
+
+// ===== Correções da revisão =====
+
+test("cart.restore sobre uma linha existente sem estoque remove a linha em vez de deixar quantidade zero", () => {
+  const { get } = load();
+  const a = withStock(get, 5);
+  get(`cart.add(${a.id}, "${a.size}", 1)`);
+  get(`stock.set(${a.id}, "${a.size}", 0)`); // esgotou enquanto o aviso "Desfazer" estava aberto
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 1 }, 0)`);
+  assert.deepEqual(get("cart.items()"), []);
+  assert.equal(get("cart.count()"), 0);
+  // outras linhas ficam como estavam
+  const b = other(get, a.id);
+  get(`stock.set(${a.id}, "${a.size}", 4)`);
+  get(`stock.set(${b.id}, "${b.sizes[0]}", 5)`);
+  get(`cart.add(${a.id}, "${a.size}", 1)`);
+  get(`cart.add(${b.id}, "${b.sizes[0]}", 2)`);
+  get(`stock.set(${a.id}, "${a.size}", 0)`);
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 3 }, 0)`);
+  assert.deepEqual(get("cart.items().map((i) => [i.id, i.qty])"), [[b.id, 2]]);
+  assert.equal(get("cart.count()"), 2);
+});
+
+test("cart.totals: a embalagem não conta para o frete grátis", () => {
+  const { get } = load();
+  const from = get("CONFIG.freeShippingFrom");
+  const wrap = get("CONFIG.giftWrapPrice");
+  // peça que fica abaixo do mínimo sozinha, mas passaria dele se a embalagem entrasse na conta
+  const p = get(`PRODUCTS.find((x) => x.price < ${from} && x.price + ${wrap} >= ${from})`);
+  assert.ok(p, "o catálogo precisa ter uma peça nessa faixa para o teste valer");
+  const size = p.sizes[0];
+  get(`stock.set(${p.id}, "${size}", 5)`);
+  get('shipping.set({ cep: "01310-100", uf: "SP", option: "pac" })');
+  get(`cart.add(${p.id}, "${size}", 1)`);
+  get(`gift.set({ on: true, message: "" })`);
+  const t = get("cart.totals()");
+  assert.equal(t.gift, wrap);
+  assert.equal(t.quote.id, "pac");
+  assert.equal(t.quote.price, 18.9); // o PAC para SP continua pago
+  assert.equal(t.shipping, 18.9);
+  assert.ok(Math.abs(t.total - (p.price + 18.9 + wrap)) < 1e-9);
+  // contraste: passando do mínimo só com as peças, o frete zera, com a embalagem ligada
+  get(`cart.add(${p.id}, "${size}", 1)`);
+  const t2 = get("cart.totals()");
+  assert.equal(t2.shipping, 0);
+  assert.ok(Math.abs(t2.total - (p.price * 2 + wrap)) < 1e-9);
+});
+
+test("orders.reorder não engole erro inesperado de cart.add", () => {
+  const { get } = load();
+  const a = withStock(get, 5);
+  const order = { id: "R3", email: "a@x.com", date: 1, status: "Entregue", total: 1, items: [{ id: a.id, name: "Peça A", size: a.size, qty: 1, price: 1 }] };
+  get(`orders.save([${JSON.stringify(order)}])`);
+  get("cart.add = () => { throw new Error('falha inesperada'); }");
+  assert.throws(() => get('orders.reorder("R3")'), /falha inesperada/);
+});
+
+test("orders.reorder manda para missing o tamanho que o produto não tem e o que a sacola já esgotou", () => {
+  const { get } = load();
+  const p = get("findProduct(1)");
+  assert.ok(!p.sizes.includes("XXL"));
+  get(`stock.set(1, "${p.sizes[0]}", 2)`);
+  get(`stock.set(1, "${p.sizes[1]}", 3)`);
+  get(`cart.add(1, "${p.sizes[0]}", 2)`); // a sacola já tem todo o estoque desse tamanho
+  const order = {
+    id: "R4", email: "a@x.com", date: 1, status: "Entregue", total: 1,
+    items: [
+      { id: 1, name: p.name, size: "XXL", qty: 1, price: 1 },
+      { id: 1, name: p.name, size: p.sizes[0], qty: 1, price: 1 },
+      { id: 1, name: p.name, size: p.sizes[1], qty: 1, price: 1 },
+    ],
+  };
+  get(`orders.save([${JSON.stringify(order)}])`);
+  const r = get('orders.reorder("R4")');
+  assert.deepEqual(r.added, [{ id: 1, size: p.sizes[1], qty: 1 }]);
+  assert.deepEqual(r.missing, [{ name: p.name, size: "XXL" }, { name: p.name, size: p.sizes[0] }]);
+  assert.deepEqual(get("cart.items().map((i) => [i.size, i.qty])"), [[p.sizes[0], 2], [p.sizes[1], 1]]);
 });

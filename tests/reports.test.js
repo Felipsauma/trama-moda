@@ -1,5 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const { load } = require("./helpers/load");
 
 // Data local (o código agrupa por dia local, então os testes também)
@@ -77,7 +79,7 @@ test("ordersToCsv: BOM, separador ;, CRLF, cabeçalho, números em pt-BR", () =>
     shipping: { name: "PAC", price: 18.9 }, total: 1237.65, methodLabel: "Pix (5% off)", status: "Pago",
   });
   const csv = call(get, "ordersToCsv", [o]);
-  assert.ok(csv.startsWith("﻿"));
+  assert.ok(csv.startsWith("\uFEFF"));
   const lines = csv.slice(1).split("\r\n");
   assert.equal(lines[0], "Pedido;Data;Cliente;E-mail;Itens;Subtotal;Desconto;Frete;Total;Pagamento;Status");
   assert.equal(lines[1], '"12345678";"05/03/2026 14:07";"Ana";"a@x.com";3;1234,50;15,25;18,90;1237,65;"Pix (5% off)";"Pago"');
@@ -86,7 +88,7 @@ test("ordersToCsv: BOM, separador ;, CRLF, cabeçalho, números em pt-BR", () =>
   const old = call(get, "ordersToCsv", [order({ shipping: 22 })]);
   assert.ok(old.includes(";22,00;"));
   // sem pedidos: só o cabeçalho
-  assert.equal(call(get, "ordersToCsv", []), "﻿Pedido;Data;Cliente;E-mail;Itens;Subtotal;Desconto;Frete;Total;Pagamento;Status");
+  assert.equal(call(get, "ordersToCsv", []), "\uFEFFPedido;Data;Cliente;E-mail;Itens;Subtotal;Desconto;Frete;Total;Pagamento;Status");
 });
 
 test("ordersToCsv: aspas, ponto e vírgula e fórmulas no texto", () => {
@@ -100,4 +102,20 @@ test("ordersToCsv: aspas, ponto e vírgula e fórmulas no texto", () => {
   }
   // texto normal não ganha apóstrofo
   assert.ok(call(get, "ordersToCsv", [order({ recipient: "Ana" })]).includes(';"Ana";'));
+});
+
+// ===== Correções da revisão =====
+
+test("ordersToCsv: o BOM fica escrito como escape no código-fonte, não como caractere invisível", () => {
+  const src = fs.readFileSync(path.join(__dirname, "..", "js", "reports.js"), "utf8");
+  assert.ok(!src.includes(String.fromCharCode(0xfeff)), "js/reports.js tem um U+FEFF literal; escreva \\uFEFF");
+  assert.ok(src.includes("\\uFEFF"), "js/reports.js deve escrever o BOM como \\uFEFF");
+});
+
+test("reports.js não ocupa nomes genéricos do escopo global (um script posterior pode declará-los)", () => {
+  // Scripts clássicos compartilham o escopo: redeclarar um nome já usado é SyntaxError na carga da loja.
+  for (const name of ["isPaid", "two", "dayKey"]) {
+    const { get } = load();
+    assert.doesNotThrow(() => get(`const ${name} = 1;`), `reports.js declara ${name} no escopo global`);
+  }
 });

@@ -133,7 +133,9 @@ const orders = {
     (this.find(id)?.items || []).forEach((i) => {
       const p = findProduct(i.id);
       let qty = 0;
-      if (p) { try { qty = cart.add(p.id, i.size, i.qty); } catch { qty = 0; } }
+      // cart.add lança quando não há unidade livre: confere antes, para não engolir outros erros
+      const inCart = cart.items().find((x) => x.id === p?.id && x.size === i.size)?.qty || 0;
+      if (p?.sizes.includes(i.size) && stock.get(p.id, i.size) > inCart) qty = cart.add(p.id, i.size, i.qty);
       if (qty > 0) result.added.push({ id: p.id, size: i.size, qty });
       else result.missing.push({ name: p?.name || i.name, size: i.size });
     });
@@ -314,8 +316,10 @@ const cart = {
     const items = this.items();
     const existing = items.find((i) => i.id === id && i.size === size);
     const max = stock.get(id, size);
-    if (existing) existing.qty = Math.min(existing.qty + qty, max);
-    else if (max > 0) items.splice(Math.min(index, items.length), 0, { id, size, qty: Math.min(qty, max) });
+    if (existing) {
+      existing.qty = Math.min(existing.qty + qty, max);
+      if (existing.qty <= 0) items.splice(items.indexOf(existing), 1); // esgotou: não deixa linha vazia
+    } else if (max > 0) items.splice(Math.min(index, items.length), 0, { id, size, qty: Math.min(qty, max) });
     this.save(items);
   },
   clear() { store.set(KEYS.gift, { on: false, message: "" }); this.save([]); },

@@ -73,8 +73,27 @@ test("searchProducts tolera erro de digitação", () => {
   assert.deepEqual(get("searchProducts('xyzabc')"), []);
   // termo curto não ganha tolerância
   assert.deepEqual(get("searchProducts('vez')"), []);
-  // termos longos aceitam distância 2
+  // 8 letras ou mais: um erro ainda passa
   assert.ok(names(get, "searchProducts('scarpinn douradoo')").some((n) => n.includes("Dourado")));
+});
+
+test("searchProducts: distância 2 só para termos de 8 letras ou mais", () => {
+  const { get } = load();
+  const vestidos = get("PRODUCTS.filter((p) => /Vestido/.test(p.name)).length");
+  // 9 letras, 2 edições em relação a "vestido" (dois s a mais): passa
+  assert.equal(get("searchProducts('vestidoss').length"), vestidos);
+  // 8 letras, 2 edições em relação a "conjunto" (u vira a, o vira a): passa
+  assert.ok(names(get, "searchProducts('conjanta')").includes("Conjunto Corset e Saia Preta"));
+  // 8 letras, 3 edições: não passa
+  assert.deepEqual(get("searchProducts('canjanta')"), []);
+  // 10 letras, 2 edições em relação a "metalizado" (z vira s, o vira u): passa
+  assert.ok(names(get, "searchProducts('metalisadu')").some((n) => n.includes("Metalizado")));
+  // 7 letras, 2 edições em relação a "vestido" (falta o i, sobra um o): não passa
+  assert.deepEqual(get("searchProducts('vestdoo')"), []);
+  // 7 letras, 1 edição: passa
+  assert.equal(get("searchProducts('vestidu').length"), vestidos);
+  // 5 letras, 2 edições (faltam o e e o i): não passa
+  assert.deepEqual(get("searchProducts('vstdo')"), []);
 });
 
 test("searchProducts ordena por pontuação (nome, categoria, descrição) e mantém a ordem do catálogo no empate", () => {
@@ -248,4 +267,126 @@ test("completeLook mistura categorias complementares, só com estoque, sem repet
   get("catalog.set(21, { price: 229.9, hidden: true })");
   assert.ok(get("completeLook(findProduct(8), 10)").every((p) => p.cat === "acessorios" ? p.id !== 21 : true));
   assert.ok(!get("completeLook(findProduct(8), 10).map((p) => p.cat)").includes("calcados"));
+});
+
+// ===== Correções da revisão =====
+
+test("recommendSize sem medidas (null, undefined ou measures.get() de visitante novo) devolve null", () => {
+  const { get } = load();
+  assert.equal(get("recommendSize(findProduct(8), null)"), null);
+  assert.equal(get("recommendSize(findProduct(8), undefined)"), null);
+  assert.equal(get("recommendSize(findProduct(18), null)"), null);
+  assert.equal(get("recommendSize(findProduct(21), null)"), null);
+  // visitante novo: ainda não há medidas salvas
+  assert.equal(get("measures.get()"), null);
+  assert.equal(get("recommendSize(findProduct(8), measures.get())"), null);
+  assert.equal(get("recommendSize(findProduct(18), measures.get())"), null);
+  // com as medidas salvas, a mesma chamada responde
+  get("measures.set({ bust: 90, waist: 72, hip: 96 })");
+  assert.equal(get("recommendSize(findProduct(8), measures.get())").size, "M");
+  assert.equal(get("recommendSize(findProduct(18), measures.get())"), null); // calçado pede { foot }
+});
+
+test("recommendSize aceita vírgula decimal, como se digita em pt-BR", () => {
+  const { get } = load();
+  const rec = (id, m) => get(`recommendSize(findProduct(${id}), ${JSON.stringify(m)})`);
+  assert.equal(rec(8, { bust: "84,5" }).size, "P"); // = 84.5, entre PP e P
+  assert.equal(rec(8, { bust: "84" }).size, "PP");
+  assert.deepEqual(rec(8, { bust: "84,5" }), rec(8, { bust: 84.5 }));
+  assert.equal(rec(8, { bust: "84.5" }).size, "P"); // ponto continua valendo
+  assert.equal(rec(8, { bust: " 90 " }).size, "M"); // espaços em volta
+  assert.equal(rec(8, { bust: "80", waist: "66,5", hip: "86" }).size, "P"); // cintura 66,5 passa de PP
+  assert.equal(rec(18, { foot: "24,6" }).size, "38");
+  assert.equal(rec(8, { bust: "abc" }), null);
+  assert.equal(rec(8, { bust: "," }), null);
+});
+
+test("parseCatalogParams: categoria desconhecida ou herdada de Object vira vazia", () => {
+  const { get } = load();
+  const cat = (value) => get(`parseCatalogParams(new URLSearchParams(${JSON.stringify("cat=" + value)})).cat`);
+  assert.equal(cat("feminino"), "feminino");
+  assert.equal(cat("acessorios"), "acessorios");
+  assert.equal(cat("xyz"), "");
+  assert.equal(cat(""), "");
+  for (const inherited of ["constructor", "__proto__", "toString", "hasOwnProperty", "valueOf"]) {
+    assert.equal(cat(inherited), "", inherited);
+  }
+  assert.equal(get("parseCatalogParams(new URLSearchParams('')).cat"), "");
+  assert.equal(get("catalogQuery(parseCatalogParams(new URLSearchParams('cat=constructor')))"), "");
+});
+
+test("catalog.apply roda no carregamento: ajustes salvos já valem sem chamar nada", () => {
+  const { get } = load({
+    seed: { trama_catalog: { 3: { price: 10, oldPrice: 20 }, 8: { price: 219.9, oldPrice: 259.9, hidden: true } } },
+  });
+  assert.equal(get("findProduct(3).price"), 10);
+  assert.equal(get("findProduct(3).oldPrice"), 20);
+  assert.equal(get("findProduct(8).hidden"), true);
+  assert.ok(!get("visibleProducts().map((p) => p.id)").includes(8));
+  assert.ok(!get("searchProducts('poa').map((p) => p.id)").includes(8));
+  // o que não foi ajustado fica como em products.js
+  assert.equal(get("findProduct(1).price"), 169.9);
+  assert.equal(get("findProduct(1).oldPrice"), 199.9);
+  assert.equal(get("findProduct(1).hidden"), false);
+  // sem nada salvo, load() continua igual
+  assert.equal(load().get("findProduct(3).price"), 129.9);
+});
+
+test("catalog.apply ignora um valor salvo que não é objeto (raiz corrompida) e o admin ainda consegue gravar", () => {
+  const clean = load().get("PRODUCTS.map((p) => [p.price, p.oldPrice, p.hidden])");
+  for (const root of ['"abc"', "42", "true", "[1, 2]", '[{"price": 1}, {"price": 2}]', "null", "{quebrado"]) {
+    const { get } = load({ seed: { trama_catalog: root } });
+    assert.deepEqual(get("PRODUCTS.map((p) => [p.price, p.oldPrice, p.hidden])"), clean, root);
+    get("catalog.set(1, { price: 120 })");
+    assert.equal(get("findProduct(1).price"), 120, root);
+    assert.deepEqual(get("catalog.all()"), { 1: { price: 120, oldPrice: null, hidden: false } }, root);
+  }
+});
+
+test("catalog.apply ignora entradas que não são objeto", () => {
+  const clean = load().get("PRODUCTS.map((p) => [p.price, p.oldPrice, p.hidden])");
+  const { get } = load({ seed: { trama_catalog: { 1: "abc", 2: 5, 3: null, 4: [1], 5: true } } });
+  assert.deepEqual(get("PRODUCTS.map((p) => [p.price, p.oldPrice, p.hidden])"), clean);
+});
+
+test("catalog.apply ignora preço que não é número maior que zero (texto salvo não vira preço)", () => {
+  const clean = load().get("PRODUCTS.map((p) => [p.price, p.oldPrice])");
+  const entries = [
+    { price: '<img src=x onerror="alert(1)">' },
+    { price: "50" },
+    { price: 0 },
+    { price: -5 },
+    { price: null },
+    { price: [50] },
+    { price: { v: 50 } },
+    { price: true },
+    { price: "50", oldPrice: 80 },
+  ];
+  for (const entry of entries) {
+    const { get } = load({ seed: { trama_catalog: { 1: entry } } });
+    assert.deepEqual(get("PRODUCTS.map((p) => [p.price, p.oldPrice])"), clean, JSON.stringify(entry));
+    assert.equal(get("typeof findProduct(1).price"), "number", JSON.stringify(entry));
+  }
+});
+
+test("catalog.apply só aceita preço original número e maior que o preço aplicado", () => {
+  // produto 1: preço 169,9 e preço original 199,9
+  const prices = (entry) => load({ seed: { trama_catalog: { 1: entry } } }).get("[findProduct(1).price, findProduct(1).oldPrice]");
+  assert.deepEqual(prices({ price: 100, oldPrice: 150 }), [100, 150]); // válido
+  assert.deepEqual(prices({ price: 100, oldPrice: null }), [100, null]); // o admin tirou a promoção
+  assert.deepEqual(prices({ price: 100, oldPrice: "abc" }), [100, 199.9]); // texto: ignora, vale o original
+  assert.deepEqual(prices({ price: 100, oldPrice: 100 }), [100, 199.9]); // não é maior que o preço: ignora
+  assert.deepEqual(prices({ price: 100, oldPrice: 50 }), [100, 199.9]);
+  assert.deepEqual(prices({ price: 300, oldPrice: 250 }), [300, null]); // ignora, e o original (199,9) também não passa de 300
+  assert.deepEqual(prices({ price: 300 }), [300, null]); // sem oldPrice: o original só vale se for maior que o preço
+  assert.deepEqual(prices({ price: 100 }), [100, 199.9]);
+  assert.deepEqual(prices({ hidden: true }), [169.9, 199.9]);
+});
+
+test("catalog.apply: hidden só vale quando é true", () => {
+  for (const hidden of ["false", "yes", 1, [], {}]) {
+    const { get } = load({ seed: { trama_catalog: { 1: { price: 100, hidden } } } });
+    assert.equal(get("findProduct(1).hidden"), false, JSON.stringify(hidden));
+  }
+  assert.equal(load({ seed: { trama_catalog: { 1: { price: 100, hidden: true } } } }).get("findProduct(1).hidden"), true);
 });
