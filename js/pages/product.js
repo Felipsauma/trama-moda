@@ -99,10 +99,10 @@ function pageProduct(id) {
           <div class="buy-row">
             <div class="qty"><button id="minus" aria-label="Diminuir">−</button><span id="qty">1</span><button id="plus" aria-label="Aumentar">+</button></div>
             <button class="btn" id="add">Adicionar à sacola</button>
-            <button class="btn ghost fav-big ${favs.has(p.id) ? "on" : ""}" data-fav="${p.id}" aria-label="Favoritar">${HEART}</button>
+            <button class="btn ghost fav-big ${favs.has(p.id) ? "on" : ""}" data-fav="${p.id}" aria-label="Favoritar">${icon("coracao")}</button>
           </div>` : `
           <div class="notice">Produto esgotado no momento.</div>
-          <button class="btn ghost block fav-big ${favs.has(p.id) ? "on" : ""}" data-fav="${p.id}">${HEART} Salvar nos favoritos</button>`}
+          <button class="btn ghost block fav-big ${favs.has(p.id) ? "on" : ""}" data-fav="${p.id}">${icon("coracao")} Salvar nos favoritos</button>`}
         <hr>
         <form class="ship-calc" id="pship">
           <label class="small" for="pcep"><strong>Calcular frete e prazo</strong></label>

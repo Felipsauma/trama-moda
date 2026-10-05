@@ -1,0 +1,98 @@
+/* Tokens da Trama: o único arquivo em que valores de cor aparecem. */
+:root {
+  /* Cores de base */
+  --papel: #FFFFFF;
+  --nevoa: #EEF0F7;
+  --linha: #D4D9E8;
+  --anil: #1B2559;
+  --anil-forte: #111A44;
+  --chumbo: #5A6285;
+  --acafrao: #FFCF33;
+  --pitanga: #C81E3A;
+  --folha: #1E7A4C;
+
+  /* Derivadas (sempre a partir das cores de base) */
+  --veu: rgb(from var(--anil-forte) r g b / 0.48);          /* fundo de gaveta, folha e modal */
+  --sombra: 0 18px 48px rgb(from var(--anil-forte) r g b / 0.18); /* só em gaveta, folha, popover e modal */
+  --papel-suave: rgb(from var(--papel) r g b / 0.72);       /* texto secundário sobre anil */
+  --papel-fio: rgb(from var(--papel) r g b / 0.2);          /* fio divisório sobre anil */
+  --pitanga-suave: color-mix(in srgb, var(--pitanga) 9%, var(--papel));
+  --folha-suave: color-mix(in srgb, var(--folha) 10%, var(--papel));
+
+  /* Carretéis: um retalho (fundo da foto) e um fio por categoria */
+  --retalho-feminino: #F6DDE6;
+  --fio-feminino: #C2477A;
+  --retalho-masculino: #D9E6F7;
+  --fio-masculino: #2F6FC4;
+  --retalho-calcados: #DCEBD8;
+  --fio-calcados: #3F8A55;
+  --retalho-acessorios: #F8ECC6;
+  --fio-acessorios: #B88A00;
+
+  /* Sem categoria: retalho névoa, fio anil */
+  --retalho: var(--nevoa);
+  --fio: var(--anil);
+
+  /* Tipografia */
+  --fonte-titulo: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --fonte-texto: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --t-13: 0.8125rem;
+  --t-14: 0.875rem;
+  --t-16: 1rem;
+  --t-20: 1.25rem;
+  --t-25: 1.5625rem;
+  --t-31: 1.9375rem;
+  --t-39: 2.4375rem;
+  --t-49: 3.0625rem;
+  --t-hero: clamp(2.75rem, 7.5vw, 6.5rem);
+
+  /* Espaço (base 4px) */
+  --e-1: 4px;
+  --e-2: 8px;
+  --e-3: 12px;
+  --e-4: 16px;
+  --e-5: 24px;
+  --e-6: 32px;
+  --e-7: 48px;
+  --e-8: 64px;
+  --e-9: 96px;
+
+  /* Forma */
+  --raio-pilula: 999px;
+  --raio: 10px;
+  --raio-folha: 20px;
+  --fio-fino: 1px solid var(--linha);
+
+  /* Medidas da moldura */
+  --largura: 1320px;
+  --margem: 24px;
+  --topo: 72px;
+  --abas: 0px;       /* altura da barra de abas (só no celular) */
+  --alvo: 44px;      /* alvo mínimo de toque */
+  --controle: 48px;  /* altura do botão principal e dos campos */
+
+  /* Movimento */
+  --rapido: 140ms;
+  --medio: 260ms;
+  --curva: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Camadas */
+  --z-topo: 40;
+  --z-abas: 40;
+  --z-popover: 50;
+  --z-veu: 60;
+  --z-toast: 80;
+}
+
+@media (max-width: 899px) {
+  :root {
+    --margem: 16px;
+    --topo: 56px;
+    --abas: 60px;
+  }
+}
+
+[data-cat="feminino"] { --retalho: var(--retalho-feminino); --fio: var(--fio-feminino); }
+[data-cat="masculino"] { --retalho: var(--retalho-masculino); --fio: var(--fio-masculino); }
+[data-cat="calcados"] { --retalho: var(--retalho-calcados); --fio: var(--fio-calcados); }
+[data-cat="acessorios"] { --retalho: var(--retalho-acessorios); --fio: var(--fio-acessorios); }

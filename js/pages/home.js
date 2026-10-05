@@ -1,77 +1,119 @@
-function pageHome() {
-  const bestSellers = visibleProducts().filter((p) => p.tag === "Mais vendido").slice(0, 4);
-  const news = visibleProducts().filter((p) => p.tag === "Novo").slice(0, 4);
-  const seen = recent.list().map(findProduct).filter((p) => !p.hidden).slice(0, 4);
-  const img = (id, n = 1) => `img/p${id}-${n}.webp`;
-  app.innerHTML = `
-    <section class="hero">
-      <div class="hero-text">
-        <span class="eyebrow">Coleção Primavera 2026</span>
-        <h1>Vista o que é <em>atemporal</em></h1>
-        <p>Peças leves, cortes precisos e cores que combinam com tudo. Feitas para acompanhar você em todas as estações.</p>
-        <div class="hero-cta">
-          <a href="#/catalogo?cat=feminino" class="btn">Comprar feminino</a>
-          <a href="#/catalogo?cat=masculino" class="btn ghost">Comprar masculino</a>
-        </div>
-      </div>
-      <div class="hero-art">
-        <figure><img src="${img(8)}" alt="Vestido Poá Rodado"></figure>
-        <figure><img src="${img(15)}" alt="Tênis cano alto"></figure>
-        <figure><img src="${img(22)}" alt="Bolsa de couro"></figure>
-      </div>
-    </section>
+// Página inicial: hero em tecido plano, novidades, cupom, mais vendidos, vistos e fatos da loja.
 
-    <div class="perks">
-      <div class="perk"><span>🚚</span><div><strong>Frete grátis</strong>acima de ${brl(CONFIG.freeShippingFrom)}</div></div>
-      <div class="perk"><span>💳</span><div><strong>Até ${CONFIG.maxInstallments}x sem juros</strong>no cartão de crédito</div></div>
-      <div class="perk"><span>⚡</span><div><strong>${CONFIG.pixDiscount * 100}% off no Pix</strong>aprovação imediata</div></div>
-      <div class="perk"><span>🔄</span><div><strong>Troca grátis</strong>em até 30 dias</div></div>
-    </div>
+// Retalhos do hero (categoria, peça da foto) e as cores dos três fios que os atravessam
+const HERO_PATCHES = [["feminino", 8], ["masculino", 1], ["calcados", 15], ["acessorios", 22]];
+const HERO_THREADS = ["feminino", "masculino", "acessorios"];
+const HOME_COUPON = "TRAMA20";
 
-    <div class="container">
-      <section class="section">
-        <div class="section-head"><div><span class="eyebrow">Categorias</span><h2>Compre por estilo</h2></div></div>
-        <div class="cat-tiles">
-          <a class="cat-tile" href="#/catalogo?cat=feminino"><img src="${img(5)}" alt=""><span>Feminino</span></a>
-          <a class="cat-tile" href="#/catalogo?cat=masculino"><img src="${img(1)}" alt=""><span>Masculino</span></a>
-          <a class="cat-tile" href="#/catalogo?cat=calcados"><img src="${img(18)}" alt=""><span>Calçados</span></a>
-          <a class="cat-tile" href="#/catalogo?cat=acessorios"><img src="${img(21)}" alt=""><span>Acessórios</span></a>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <div><span class="eyebrow">Os favoritos</span><h2>Mais vendidos</h2></div>
-          <a href="#/catalogo" class="link">Ver tudo</a>
-        </div>
-        <div class="grid">${bestSellers.map(productCard).join("")}</div>
-      </section>
-
-      <section class="banner">
-        <div class="banner-text">
-          <span class="eyebrow">Sale de meia estação</span>
-          <h2>Até 20% off em peças selecionadas</h2>
-          <p>Aproveite descontos em vestidos, calçados e acessórios. Use também o cupom <strong style="color:#fff">TRAMA20</strong> na sacola.</p>
-          <a href="#/catalogo?sort=promo" class="btn light">Ver promoções</a>
-        </div>
-        <div class="banner-img">
-          <img src="${img(14)}" alt=""><img src="${img(19)}" alt="">
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <div><span class="eyebrow">Acabou de chegar</span><h2>Novidades</h2></div>
-          <a href="#/catalogo" class="link">Ver tudo</a>
-        </div>
-        <div class="grid">${news.map(productCard).join("")}</div>
-      </section>
-
-      ${seen.length ? `
-      <section class="section">
-        <div class="section-head"><div><span class="eyebrow">Seu histórico</span><h2>Vistos recentemente</h2></div></div>
-        <div class="grid">${seen.map(productCard).join("")}</div>
-      </section>` : ""}
+function heroWeave(list) {
+  const count = (cat) => list.filter((p) => p.cat === cat).length;
+  const patch = ([cat, id], i) => {
+    const p = findProduct(id);
+    const n = count(cat);
+    // Ligamento tela: o fio passa por cima quando (retalho + fio) é par, por baixo quando é ímpar
+    const over = HERO_THREADS.map((t, j) => ((i + j) % 2 === 0 ? `<span class="thread thread-over t${j}" data-cat="${t}"></span>` : "")).join("");
+    return `
+      <a class="patch" data-cat="${cat}" href="#/catalogo?cat=${cat}">
+        <span class="patch-swatch"><img src="${p.images[0]}" alt="" width="500" height="625">${over}</span>
+        <span class="patch-caption">
+          <span class="patch-name">${esc(CATEGORIES[cat])}</span>
+          <span class="patch-count">${n} ${n === 1 ? "peça" : "peças"}</span>
+        </span>
+      </a>`;
+  };
+  const threads = HERO_THREADS.map((t, j) => `<span class="thread t${j}" data-cat="${t}"></span>`).join("");
+  // Duas fileiras de dois retalhos: lado a lado no desktop (uma faixa só), empilhadas no celular (2×2)
+  return `
+    <div class="weave" id="weave">
+      ${[0, 2].map((start) => `
+        <div class="weave-row">
+          <span class="weave-threads" aria-hidden="true">${threads}</span>
+          ${HERO_PATCHES.slice(start, start + 2).map((h, k) => patch(h, start + k)).join("")}
+        </div>`).join("")}
     </div>`;
 }
 
+// Sequência de entrada: cada fio se desenha da esquerda para a direita (0,8s), um após o outro (0,2s).
+// Cada trecho recebe o instante e a duração proporcionais à sua posição no percurso do fio.
+function timeWeave(weave) {
+  const rows = $$(".weave-row", weave);
+  const box = weave.getBoundingClientRect();
+  const stacked = rows[1].offsetTop > rows[0].offsetTop;
+  const passes = stacked ? 2 : 1;
+  $$(".thread", weave).forEach((el) => {
+    const r = el.getBoundingClientRect();
+    const j = Number(el.className.match(/\bt(\d)\b/)[1]);
+    const row = stacked ? rows.indexOf(el.closest(".weave-row")) : 0;
+    const start = (row + (r.left - box.left) / box.width) / passes;
+    el.style.setProperty("--t0", `${(j * 0.2 + start * 0.8).toFixed(3)}s`);
+    el.style.setProperty("--dur", `${Math.max(0.01, (r.width / box.width / passes) * 0.8).toFixed(3)}s`);
+  });
+}
+
+function couponBandHTML() {
+  const applied = coupon.active() === HOME_COUPON;
+  return `
+    <section class="coupon-band" aria-label="Cupom ${HOME_COUPON}">
+      <h2>20% em qualquer peça com o cupom <span class="coupon-code">${HOME_COUPON}</span></h2>
+      <div class="coupon-actions">
+        <button type="button" class="btn" id="coupon-apply" ${applied ? "disabled" : ""}>${applied ? `${icon("check")}Cupom aplicado` : "Aplicar cupom"}</button>
+        <a class="link" href="#/catalogo?promo=1">Ver promoções</a>
+      </div>
+    </section>`;
+}
+
+function pageHome() {
+  const list = visibleProducts();
+  const news = list.filter((p) => p.tag === "Novo");
+  const best = list.filter((p) => p.tag === "Mais vendido").slice(0, 8);
+  const seen = recent.list().map(findProduct).filter((p) => p && !p.hidden).slice(0, 10);
+  const facts = [
+    [`Frete grátis acima de ${brl(CONFIG.freeShippingFrom).replace(",00", "")}`, "Vale para o PAC, em todo o Brasil. O prazo aparece na sacola, pelo seu CEP."],
+    [`Até ${CONFIG.maxInstallments}x sem juros`, "No cartão de crédito, sem acréscimo no preço da peça."],
+    [`${Math.round(CONFIG.pixDiscount * 100)}% de desconto no Pix`, "O desconto entra na hora de pagar e a aprovação sai na hora."],
+    ["Primeira troca grátis", "Você tem 30 dias depois da entrega para trocar de tamanho ou de peça."],
+  ];
+  setTitle("");
+  app.innerHTML = `
+    <section class="hero">
+      <div class="container hero-text">
+        <h1>Roupa boa se faz<br>fio a fio.</h1>
+        <div class="hero-lead">
+          <p>Peças para usar muito, por muito tempo.</p>
+          <a href="#/catalogo?sort=novidades" class="btn">Ver novidades</a>
+        </div>
+      </div>
+      ${heroWeave(list)}
+    </section>
+
+    <div class="container home">
+      ${news.length ? rail("Chegou agora", news, { id: "chegou" }) : ""}
+      ${couponBandHTML()}
+      ${best.length ? `
+      <section aria-labelledby="best-title">
+        <div class="section-head">
+          <h2 id="best-title">Mais vendidos</h2>
+          <a href="#/catalogo" class="link">Ver o catálogo todo</a>
+        </div>
+        <div class="grid">${best.map(productCard).join("")}</div>
+      </section>` : ""}
+      ${seen.length ? rail("Vistos recentemente", seen, { id: "vistos" }) : ""}
+      <section class="facts" aria-labelledby="facts-title">
+        <h2 id="facts-title">Como é comprar na Trama</h2>
+        <ul class="facts-list">
+          ${facts.map(([t, d]) => `<li><h3>${t}</h3><p>${d}</p></li>`).join("")}
+        </ul>
+      </section>
+    </div>`;
+
+  timeWeave($("#weave"));
+
+  $("#coupon-apply").addEventListener("click", (e) => {
+    try {
+      coupon.apply(HOME_COUPON);
+      e.currentTarget.disabled = true;
+      e.currentTarget.innerHTML = `${icon("check")}Cupom aplicado`;
+      toast(`Cupom ${HOME_COUPON} aplicado`, { action: "Ver sacola", onAction: openDrawer });
+    } catch (err) { toast(err.message); }
+  });
+}

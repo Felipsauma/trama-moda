@@ -1,0 +1,788 @@
+/* Componentes compartilhados da Trama.
+   Um bloco por componente; modificadores são classes extras (ex.: "btn secondary small").
+   Índice: botão, botão de ícone, link, chip, campo, linhas de marcar, alternador, etiqueta,
+   estrelas, quantidade, tamanhos, painel, abas, tabela, aviso, vazio, retalho (thumb),
+   cartão de produto, grade, trilho, linhas de resumo, fio de progresso, status,
+   véu, gaveta, modal, folha inferior, toast, popover. */
+
+/* ---------- Botão ----------
+   .btn (principal) | .secondary | .tertiary | .light (sobre anil) | .danger | .small | .block
+   Desabilitado: atributo disabled ou aria-disabled="true". */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: var(--controle);
+  padding: 0 var(--e-5);
+  border: 2px solid var(--anil);
+  border-radius: var(--raio-pilula);
+  background: var(--anil);
+  color: var(--papel);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--rapido), border-color var(--rapido), color var(--rapido), transform var(--rapido);
+}
+.btn:hover { background: var(--anil-forte); border-color: var(--anil-forte); }
+.btn:active { transform: scale(0.98); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn.secondary, .btn.ghost { background: transparent; color: var(--anil); }
+.btn.secondary:hover, .btn.ghost:hover { background: var(--nevoa); border-color: var(--anil); }
+.btn.tertiary {
+  min-height: var(--alvo);
+  padding-inline: var(--e-2);
+  border-color: transparent;
+  background: transparent;
+  color: var(--anil);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+}
+.btn.tertiary:hover { background: var(--nevoa); }
+.btn.light { background: var(--papel); border-color: var(--papel); color: var(--anil); }
+.btn.light:hover { background: var(--nevoa); border-color: var(--nevoa); }
+.btn.danger { background: transparent; border-color: var(--pitanga); color: var(--pitanga); }
+.btn.danger:hover { background: var(--pitanga-suave); }
+.btn.small, .btn.sm { min-height: var(--alvo); padding-inline: var(--e-4); font-size: var(--t-14); }
+.btn.block { display: flex; width: 100%; }
+.btn:disabled, .btn[aria-disabled="true"] {
+  background: var(--nevoa);
+  border-color: var(--nevoa);
+  color: var(--chumbo);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- Botão de ícone ----------
+   .icon-btn (redondo, 44px) | .solid (fundo papel) ; .count é o contador sobreposto */
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-width: var(--alvo);
+  height: var(--alvo);
+  border-radius: var(--raio-pilula);
+  color: var(--anil);
+  flex: none;
+  transition: background var(--rapido);
+}
+.icon-btn:hover { background: var(--nevoa); }
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn.solid { background: var(--papel); }
+.icon-btn:disabled { color: var(--linha); cursor: not-allowed; background: none; }
+.count {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--raio-pilula);
+  background: var(--anil);
+  color: var(--papel);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Link ---------- */
+.link {
+  color: var(--anil);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+  cursor: pointer;
+}
+.link:hover { text-decoration-thickness: 2.5px; }
+.link.danger { color: var(--pitanga); }
+
+/* ---------- Chip ----------
+   .chip | .active ou aria-pressed="true" (selecionado) | .chip-dot (ponto do fio, usa --fio)
+   Removível: <button class="chip removable">Texto <svg/></button> */
+.chips { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: var(--alvo);
+  padding: 0 var(--e-4);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-pilula);
+  background: var(--papel);
+  color: var(--anil);
+  font-size: var(--t-14);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--rapido), background var(--rapido);
+}
+.chip:hover { border-color: var(--anil); }
+.chip.active, .chip[aria-pressed="true"] { background: var(--anil); border-color: var(--anil); color: var(--papel); }
+.chip.removable { background: var(--nevoa); border-color: var(--nevoa); padding-right: var(--e-3); }
+.chip.removable:hover { border-color: var(--anil); }
+.chip svg { width: 16px; height: 16px; }
+.chip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fio); flex: none; }
+
+/* ---------- Campo de formulário ----------
+   <div class="field"><label for>Nome</label><input class="input"><p class="hint"/><p class="err"/></div>
+   .invalid no controle marca erro. .input/.select/.textarea funcionam também fora de .field. */
+.field { display: grid; gap: 6px; margin-bottom: var(--e-4); min-width: 0; }
+.field label, .label { font-size: var(--t-14); font-weight: 600; }
+.input, .select, .textarea,
+.field input:not([type="checkbox"]):not([type="radio"]), .field select, .field textarea,
+.inline-form input {
+  width: 100%;
+  min-height: var(--controle);
+  padding: 0 var(--e-4);
+  border: 1.5px solid transparent;
+  border-radius: var(--raio);
+  background: var(--nevoa);
+  color: var(--anil);
+  transition: border-color var(--rapido), background var(--rapido);
+}
+.textarea, .field textarea { padding-block: var(--e-3); min-height: 112px; resize: vertical; line-height: 1.5; }
+.select, .field select {
+  appearance: none;
+  padding-right: 40px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--anil) 50%), linear-gradient(135deg, var(--anil) 50%, transparent 50%);
+  background-position: calc(100% - 21px) 50%, calc(100% - 15px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.select.sm { min-height: var(--alvo); width: auto; font-size: var(--t-14); }
+.input::placeholder, .textarea::placeholder, .field input::placeholder, .inline-form input::placeholder { color: var(--chumbo); opacity: 1; }
+.input:hover, .select:hover, .textarea:hover, .field input:hover, .field select:hover, .field textarea:hover { border-color: var(--linha); }
+.input:focus-visible, .select:focus-visible, .textarea:focus-visible,
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible, .inline-form input:focus-visible {
+  outline: none;
+  border-color: var(--anil);
+  background-color: var(--papel);
+}
+.invalid, .field .invalid { border-color: var(--pitanga) !important; }
+.err { margin: 0; color: var(--pitanga); font-size: var(--t-13); font-weight: 500; }
+.err:empty { display: none; }
+.hint { margin: 0; color: var(--chumbo); font-size: var(--t-13); }
+.inline-form { display: flex; gap: var(--e-2); align-items: center; margin-block: var(--e-3); }
+.inline-form input { flex: 1; min-width: 0; }
+/* Sobre painel névoa, o campo fica papel */
+.panel .input, .panel .select, .panel .textarea, .panel .field input, .panel .field select, .panel .field textarea,
+.panel .inline-form input, .card .input, .card .select, .card .field input, .card .field select, .card .field textarea,
+.card .inline-form input { background-color: var(--papel); }
+
+/* ---------- Linhas de marcar (caixa e rádio) ----------
+   <label class="check"><input type="checkbox"> Texto</label> */
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: var(--alvo);
+  cursor: pointer;
+}
+.check input, .ship-opt input {
+  appearance: none;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 2px solid var(--anil);
+  border-radius: 6px;
+  background: var(--papel);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+}
+.check input[type="radio"], .ship-opt input { border-radius: 50%; }
+.check input::after, .ship-opt input::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--papel);
+  transform: scale(0);
+  transition: transform var(--rapido);
+}
+.check input[type="radio"]::after, .ship-opt input::after { border-radius: 50%; }
+.check input:checked, .ship-opt input:checked { background: var(--anil); }
+.check input:checked::after, .ship-opt input:checked::after { transform: scale(1); }
+.check input:disabled { border-color: var(--linha); cursor: not-allowed; }
+
+/* ---------- Alternador ----------
+   <label class="toggle"><input type="checkbox" role="switch"><span class="toggle-track"></span> Texto</label> */
+.toggle { display: inline-flex; align-items: center; gap: var(--e-3); min-height: var(--alvo); cursor: pointer; font-size: var(--t-14); font-weight: 500; }
+.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.toggle-track {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 24px;
+  border-radius: var(--raio-pilula);
+  background: var(--linha);
+  transition: background var(--rapido);
+}
+.toggle-track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--papel);
+  transition: transform var(--rapido) var(--curva);
+}
+.toggle input:checked + .toggle-track { background: var(--anil); }
+.toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+.toggle input:focus-visible + .toggle-track { outline: 3px solid var(--anil); outline-offset: 2px; }
+
+/* ---------- Etiqueta ----------
+   .tag (papel) | .sale (açafrão, desconto) | .out (esgotado) | .dark (anil) */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--raio-pilula);
+  background: var(--papel);
+  color: var(--anil);
+  font-size: var(--t-13);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+.tag.sale { background: var(--acafrao); color: var(--anil); font-variant-numeric: tabular-nums; }
+.tag.out { background: var(--papel); color: var(--pitanga); }
+.tag.dark { background: var(--anil); color: var(--papel); }
+.tag.ok { background: var(--folha-suave); color: var(--folha); }
+
+/* ---------- Estrelas ----------
+   <span class="stars" style="--r:4.5" role="img" aria-label="4,5 de 5 estrelas"></span> (helper stars(r)) */
+.stars {
+  --r: 0;
+  display: inline-block;
+  width: 5em;
+  height: 1em;
+  vertical-align: -0.12em;
+  background: linear-gradient(90deg, var(--anil) calc(var(--r) / 5 * 100%), var(--linha) 0);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 6 6.5.9-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.1 1.1-6.5L2.6 9.5l6.5-.9z'/%3E%3C/svg%3E") 0 0 / 1em 1em repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.6l2.9 6 6.5.9-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.1 1.1-6.5L2.6 9.5l6.5-.9z'/%3E%3C/svg%3E") 0 0 / 1em 1em repeat-x;
+}
+.rating { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-13); color: var(--chumbo); }
+
+/* ---------- Quantidade ----------
+   <div class="qty"><button aria-label="Diminuir">−</button><span>1</span><button aria-label="Aumentar">+</button></div>  | .sm */
+.qty {
+  display: inline-flex;
+  align-items: center;
+  height: var(--controle);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-pilula);
+  background: var(--papel);
+}
+.qty button {
+  display: grid;
+  place-items: center;
+  width: var(--alvo);
+  height: 100%;
+  border-radius: var(--raio-pilula);
+  font-size: var(--t-20);
+  line-height: 1;
+}
+.qty button svg { width: 18px; height: 18px; }
+.qty button:hover { background: var(--nevoa); }
+.qty button:disabled { color: var(--linha); cursor: not-allowed; }
+.qty span { min-width: 28px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.qty.sm { height: var(--alvo); }
+.qty.sm span { min-width: 20px; font-size: var(--t-14); }
+
+/* ---------- Tamanhos ----------
+   <div class="sizes"><button class="size">M</button></div>
+   .size | .active ou aria-pressed="true" | .out ou disabled (esgotado) | .sm */
+.sizes { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+.size {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--controle);
+  height: var(--controle);
+  padding: 0 var(--e-3);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-pilula);
+  background: var(--papel);
+  color: var(--anil);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color var(--rapido), background var(--rapido), color var(--rapido);
+}
+.size:hover { border-color: var(--anil); }
+.size.active, .size[aria-pressed="true"] { background: var(--anil); border-color: var(--anil); color: var(--papel); }
+.size.out, .size:disabled {
+  border-style: dashed;
+  color: var(--chumbo);
+  text-decoration: line-through;
+  text-decoration-color: var(--pitanga);
+}
+.size:disabled { cursor: not-allowed; background: transparent; }
+.size:disabled:hover { border-color: var(--linha); }
+.size.sm { min-width: var(--alvo); height: var(--alvo); font-size: var(--t-14); }
+
+/* ---------- Painel ----------
+   Faixa névoa sem borda. .panel | .flat (sem fundo, só fio em cima) */
+.panel, .card {
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+}
+.panel > h2, .panel > h3, .card > h2, .card > h3 { margin-bottom: var(--e-4); }
+.panel > :last-child, .card > :last-child { margin-bottom: 0; }
+.panel.flat { padding: var(--e-5) 0 0; border-radius: 0; border-top: var(--fio-fino); background: none; }
+
+/* ---------- Abas ----------
+   <div class="tabs" role="tablist"><button class="active">…</button><a>…</a></div> */
+.tabs {
+  display: flex;
+  gap: var(--e-5);
+  margin-bottom: var(--e-5);
+  border-bottom: var(--fio-fino);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs > * {
+  position: relative;
+  flex: none;
+  min-height: var(--alvo);
+  padding: var(--e-3) 0;
+  color: var(--chumbo);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tabs > *:hover { color: var(--anil); }
+.tabs > .active, .tabs > [aria-selected="true"], .tabs > [aria-current="page"] { color: var(--anil); }
+.tabs > .active::after, .tabs > [aria-selected="true"]::after, .tabs > [aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 3px;
+  background: var(--fio);
+}
+.tabs > :focus-visible { outline-offset: -3px; }
+
+/* ---------- Tabela ---------- */
+.table-wrap { overflow-x: auto; }
+.table { font-size: var(--t-14); }
+.table th {
+  padding: var(--e-3) var(--e-4) var(--e-3) 0;
+  border-bottom: 1px solid var(--anil);
+  color: var(--chumbo);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+.table td { padding: var(--e-3) var(--e-4) var(--e-3) 0; border-bottom: var(--fio-fino); vertical-align: middle; }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- Aviso ----------
+   .notice (informação) | .success | .error */
+.notice {
+  max-width: none;
+  margin: 0 0 var(--e-4);
+  padding: var(--e-3) var(--e-4);
+  border-left: 4px solid var(--anil);
+  border-radius: 0 var(--raio) var(--raio) 0;
+  background: var(--nevoa);
+  font-size: var(--t-14);
+}
+.notice.success { border-color: var(--folha); background: var(--folha-suave); }
+.notice.error { border-color: var(--pitanga); background: var(--pitanga-suave); }
+
+/* ---------- Tela vazia ----------
+   Único lugar (com a confirmação de pedido) de texto centralizado. */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--e-3);
+  padding: var(--e-8) var(--e-4);
+  text-align: center;
+}
+.empty p { margin: 0; color: var(--chumbo); }
+.empty .btn { margin-top: var(--e-3); }
+.empty > svg { width: 40px; height: 40px; color: var(--chumbo); }
+
+/* ---------- Retalho (miniatura) ----------
+   <div class="thumb" data-cat="feminino"><img></div>  | .sm (56px) | .lg (96px) */
+.thumb {
+  position: relative;
+  flex: none;
+  width: 72px;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--raio);
+  background: var(--retalho);
+  overflow: hidden;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
+.thumb.sm { width: 56px; border-radius: 8px; }
+.thumb.lg { width: 96px; }
+
+/* ---------- Cartão de produto ----------
+   Gerado por productCard(p). Estrutura:
+   article.pcard[data-cat] > .pcard-swatch > (a.pcard-photos, .pcard-tag, button.pcard-fav, .pcard-quick, button.pcard-plus)
+                           > .pcard-body > (a.pcard-name, .pcard-price, .rating)
+   .pcard.is-out quando esgotado. */
+.pcard { position: relative; display: flex; flex-direction: column; gap: var(--e-3); min-width: 0; }
+.pcard-swatch {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--raio);
+  background: var(--retalho);
+  overflow: hidden;
+}
+.pcard-photos { position: absolute; inset: 0; display: block; }
+.pcard-photos img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  transition: opacity var(--medio);
+}
+.pcard-photos .alt { opacity: 0; }
+.pcard.is-out .pcard-photos img { opacity: 0.45; }
+.pcard-tag { position: absolute; top: var(--e-3); left: var(--e-3); pointer-events: none; }
+.pcard-fav {
+  position: absolute;
+  top: var(--e-1);
+  right: var(--e-1);
+  display: grid;
+  place-items: center;
+  width: var(--alvo);
+  height: var(--alvo);
+  border-radius: 50%;
+  color: var(--anil);
+}
+.pcard-fav svg { width: 22px; height: 22px; transition: transform var(--rapido) var(--curva); }
+.pcard-fav:hover svg { transform: scale(1.12); }
+.pcard-fav.on svg, .fav-on svg { fill: currentColor; }
+.pcard-quick {
+  position: absolute;
+  inset: auto var(--e-2) var(--e-2);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--e-1);
+  padding: var(--e-2);
+  border-radius: var(--raio);
+  background: var(--papel);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity var(--rapido), transform var(--medio) var(--curva);
+}
+.pcard-quick .size { min-width: 40px; height: 40px; padding: 0 var(--e-2); border-color: transparent; font-size: var(--t-14); }
+.pcard-quick .size:hover:not(:disabled) { background: var(--anil); color: var(--papel); }
+.pcard-quick .btn { flex: 1; min-height: 40px; }
+.pcard-plus {
+  position: absolute;
+  right: var(--e-2);
+  bottom: var(--e-2);
+  display: none;
+  place-items: center;
+  width: var(--alvo);
+  height: var(--alvo);
+  border-radius: 50%;
+  background: var(--anil);
+  color: var(--papel);
+}
+.pcard-plus svg { width: 22px; height: 22px; }
+.pcard-body { display: grid; gap: 2px; }
+.pcard-name { font-weight: 500; line-height: 1.3; }
+.pcard-name:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* O link do nome cobre o cartão inteiro só para o ponteiro do mouse via retalho (link de fotos) */
+.pcard-price { display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--e-2); font-variant-numeric: tabular-nums; }
+.pcard-price .now { font-weight: 700; }
+.pcard-price .old, .old { color: var(--chumbo); font-size: var(--t-14); text-decoration: line-through; }
+
+@media (hover: hover) {
+  .pcard:hover .pcard-photos .alt, .pcard:focus-within .pcard-photos .alt { opacity: 1; }
+  .pcard:hover .pcard-photos .main, .pcard:focus-within .pcard-photos .main { opacity: 0; }
+  .pcard.is-out:hover .pcard-photos .alt { opacity: 0.45; }
+  .pcard:hover .pcard-quick, .pcard:focus-within .pcard-quick { opacity: 1; transform: none; pointer-events: auto; }
+}
+@media (hover: none) {
+  .pcard-quick { display: none; }
+  .pcard-plus { display: grid; }
+}
+
+/* ---------- Grade de produtos ----------
+   .grid (compacta: 4 colunas, 2 no celular) | .comfortable (3 colunas, 1 no celular) */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--e-7) var(--e-5);
+}
+.grid.comfortable, .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1099px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 899px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-6) var(--e-3); }
+  .grid.comfortable, .grid-3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Trilho ----------
+   Gerado por rail(titulo, produtos). section.rail > .rail-head (h2 + .rail-nav) + .rail-track */
+.rail-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--e-4); margin-bottom: var(--e-5); }
+.rail-nav { display: flex; gap: var(--e-2); }
+.rail-btn {
+  display: grid;
+  place-items: center;
+  width: var(--alvo);
+  height: var(--alvo);
+  border: 1.5px solid var(--anil);
+  border-radius: 50%;
+  color: var(--anil);
+  transition: background var(--rapido), color var(--rapido), border-color var(--rapido);
+}
+.rail-btn svg { width: 20px; height: 20px; }
+.rail-btn:hover:not(:disabled) { background: var(--anil); color: var(--papel); }
+.rail-btn:disabled { border-color: var(--linha); color: var(--linha); cursor: not-allowed; }
+.rail-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 3 * var(--e-5)) / 4);
+  gap: var(--e-5);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.rail-track::-webkit-scrollbar, .tabs::-webkit-scrollbar { display: none; }
+.rail-track > * { scroll-snap-align: start; }
+@media (max-width: 1099px) {
+  .rail-track { grid-auto-columns: calc((100% - 2 * var(--e-5)) / 3); }
+}
+@media (max-width: 899px) {
+  .rail-track {
+    grid-auto-columns: 62%;
+    gap: var(--e-3);
+    margin-inline: calc(-1 * var(--margem));
+    padding-inline: var(--margem);
+    scroll-padding-inline: var(--margem);
+  }
+  .rail-nav { display: none; }
+}
+
+/* ---------- Linhas de resumo ----------
+   <div class="summary-line"><span>Subtotal</span><span>R$ 10,00</span></div>  | .total | .ok (desconto) */
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--e-4);
+  padding-block: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.summary-line.ok { color: var(--folha); }
+.summary-line.total {
+  margin-top: var(--e-3);
+  padding-top: var(--e-4);
+  border-top: 1px solid var(--anil);
+  font-size: var(--t-20);
+  font-weight: 700;
+}
+
+/* ---------- Fio de progresso ----------
+   <div class="progress"><div style="width:60%"></div></div>  (frete grátis: fio açafrão) */
+.progress { height: 4px; margin-block: var(--e-2) var(--e-4); border-radius: 2px; background: var(--linha); overflow: hidden; }
+.progress > div { height: 100%; border-radius: 2px; background: var(--acafrao); transition: width var(--medio) var(--curva); }
+.progress.on-nevoa { background: var(--papel); }
+
+/* ---------- Status ----------
+   <span class="status">Entregue</span> | .info | .pending | .cancel  (ponto + texto) */
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-14); font-weight: 600; color: var(--folha); white-space: nowrap; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.status.info { color: var(--anil); }
+.status.pending { color: var(--chumbo); }
+.status.pending::before { background: var(--acafrao); }
+.status.cancel { color: var(--pitanga); }
+
+/* ---------- Véu (fundo das sobreposições) ---------- */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-veu);
+  background: var(--veu);
+  animation: veil-in var(--medio) both;
+}
+@keyframes veil-in { from { opacity: 0; } }
+
+/* ---------- Gaveta ----------
+   .veil > aside.drawer > .drawer-head + .drawer-body + .drawer-foot */
+.drawer {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: min(440px, 100%);
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  animation: drawer-in var(--medio) var(--curva) both;
+}
+@keyframes drawer-in { from { transform: translateX(100%); } }
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-4);
+  padding: var(--e-3) var(--e-3) var(--e-3) var(--e-5);
+  border-bottom: var(--fio-fino);
+}
+.drawer-head h2 { font-size: var(--t-25); }
+.drawer-body { flex: 1; overflow-y: auto; padding: 0 var(--e-5); overscroll-behavior: contain; }
+.drawer-foot { padding: var(--e-4) var(--e-5) var(--e-5); background: var(--nevoa); }
+.drawer-foot:empty { display: none; }
+.drawer-foot .btn + .btn { margin-top: var(--e-2); }
+.drawer-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--e-4);
+  padding-block: var(--e-4);
+  border-bottom: var(--fio-fino);
+}
+.drawer-item:last-child { border-bottom: 0; }
+.drawer-item-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e-3); }
+.drawer-item-name { font-weight: 500; line-height: 1.3; }
+.drawer-item-name:hover { text-decoration: underline; text-underline-offset: 3px; }
+.drawer-item-price { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.drawer-row { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); margin-top: var(--e-2); }
+@media (max-width: 899px) {
+  .drawer-head { padding-left: var(--e-4); }
+  .drawer-body { padding-inline: var(--e-4); }
+  .drawer-foot { padding: var(--e-4); }
+}
+
+/* ---------- Modal ----------
+   openModal(html): .veil.modal > .modal-box > (button.modal-close, #modal-content)  | .modal-box.wide */
+.modal { display: grid; place-items: center; padding: var(--e-4); overflow-y: auto; }
+.modal-box {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: calc(100vh - 2 * var(--e-4));
+  overflow-y: auto;
+  padding: var(--e-6);
+  border-radius: var(--raio);
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  animation: modal-in var(--medio) var(--curva) both;
+}
+.modal-box.wide { width: min(880px, 100%); }
+@keyframes modal-in { from { opacity: 0; transform: translateY(12px); } }
+.modal-close { position: absolute; top: var(--e-2); right: var(--e-2); }
+.modal-box h2 { margin: 0 var(--e-7) var(--e-3) 0; font-size: var(--t-31); }
+
+/* ---------- Folha inferior ----------
+   openSheet(html): .veil > .sheet > (.sheet-grip, button.sheet-close, #sheet-content) */
+.sheet {
+  position: absolute;
+  inset: auto 0 0;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: var(--e-5) var(--margem) calc(var(--e-5) + env(safe-area-inset-bottom));
+  border-radius: var(--raio-folha) var(--raio-folha) 0 0;
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  animation: sheet-in var(--medio) var(--curva) both;
+}
+@keyframes sheet-in { from { transform: translateY(100%); } }
+.sheet-close { position: absolute; top: var(--e-2); right: var(--e-2); }
+.sheet h2 { margin: 0 var(--e-7) var(--e-4) 0; font-size: var(--t-25); }
+.sheet-product { display: flex; align-items: center; gap: var(--e-4); margin-bottom: var(--e-5); }
+@media (min-width: 900px) {
+  .sheet { inset: auto auto 0 50%; width: 520px; transform: translateX(-50%); animation-name: veil-in; }
+}
+
+/* ---------- Toast ----------
+   toast(msg, { action, onAction }) */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--abas) + var(--e-5) + env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--margem));
+  min-height: var(--controle);
+  padding: var(--e-1) var(--e-5);
+  border-radius: var(--raio-pilula);
+  background: var(--anil);
+  color: var(--papel);
+  font-size: var(--t-14);
+  font-weight: 500;
+  box-shadow: var(--sombra);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 12px);
+  transition: opacity var(--medio), transform var(--medio) var(--curva), visibility 0s var(--medio);
+}
+.toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition-delay: 0s; }
+.toast.has-action { padding-right: var(--e-2); }
+.toast-action {
+  min-height: 40px;
+  padding: 0 var(--e-4);
+  border-radius: var(--raio-pilula);
+  background: var(--acafrao);
+  color: var(--anil);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.toast-action:focus-visible { outline-color: var(--acafrao); }
+
+/* ---------- Popover ----------
+   Caixa flutuante ancorada num pai com position: relative. .popover | .right (alinha à direita) */
+.popover {
+  position: absolute;
+  top: calc(100% + var(--e-2));
+  left: 0;
+  z-index: var(--z-popover);
+  min-width: 260px;
+  padding: var(--e-4);
+  border-radius: var(--raio);
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  animation: modal-in var(--rapido) var(--curva) both;
+}
+.popover.right { left: auto; right: 0; }
+
+/* ---------- Meta do frete grátis e opções de entrega ----------
+   freeShipHTML(t): p.ship-goal (+ .ok) seguido de .progress
+   shipOptionsHTML(): .ship-options > label.ship-opt */
+.ship-goal { margin: 0; font-size: var(--t-14); }
+.ship-goal.ok { display: flex; align-items: center; gap: var(--e-2); color: var(--folha); }
+.ship-goal svg { width: 18px; height: 18px; flex: none; }
+.ship-options { display: grid; gap: var(--e-2); margin-block: var(--e-3); }
+.ship-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: 56px;
+  padding: var(--e-2) var(--e-4);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--papel);
+  cursor: pointer;
+}
+.ship-opt:has(input:checked) { border-color: var(--anil); }
+.ship-opt-text { flex: 1; display: grid; line-height: 1.3; }
+.drawer-total { padding-block: var(--e-1) var(--e-3); font-size: var(--t-20); font-weight: 700; }
