@@ -1,1 +1,454 @@
-/* Estilos da página: product (preenchido na tarefa desta página). */
+/* Estilos da página de Produto */
+
+.product-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2);
+  margin-block: var(--e-5) var(--e-6);
+  font-size: var(--t-14);
+  color: var(--chumbo);
+}
+
+.product-breadcrumb a:hover {
+  text-decoration: underline;
+  color: var(--anil);
+}
+
+.product-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 1fr);
+  gap: var(--e-8);
+  align-items: start;
+  margin-bottom: var(--e-8);
+}
+
+/* Galeria Desktop: Mosaico */
+.product-gallery-desktop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+}
+
+.gallery-mosaic-item {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--raio);
+  background: var(--retalho);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.gallery-mosaic-item:first-child {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 13;
+}
+
+.gallery-mosaic-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+  transition: transform var(--medio) var(--curva);
+}
+
+.gallery-mosaic-item:hover img {
+  transform: scale(1.03);
+}
+
+/* Galeria Celular: Carrossel */
+.product-gallery-mobile {
+  display: none;
+  position: relative;
+  margin-inline: calc(-1 * var(--margem));
+}
+
+.mobile-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-carousel-slide {
+  flex: 0 0 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--retalho);
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+.mobile-carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: multiply;
+}
+
+.mobile-carousel-counter {
+  position: absolute;
+  right: var(--margem);
+  bottom: var(--e-3);
+  padding: 4px 12px;
+  border-radius: var(--raio-pilula);
+  background: var(--anil);
+  color: var(--papel);
+  font-size: var(--t-13);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Painel de Compra */
+.product-panel {
+  display: grid;
+  gap: var(--e-4);
+  position: sticky;
+  top: calc(var(--topo) + var(--e-5));
+}
+
+.product-tag {
+  align-self: start;
+}
+
+.product-title {
+  margin: 0;
+  font-size: clamp(var(--t-25), 3.5vw, var(--t-39));
+  line-height: 1.1;
+}
+
+.product-prices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--e-3);
+  margin-top: var(--e-1);
+}
+
+.product-price-now {
+  font-size: var(--t-31);
+  font-weight: 800;
+  font-family: var(--fonte-titulo);
+  letter-spacing: -0.02em;
+}
+
+.product-price-old {
+  font-size: var(--t-18);
+  color: var(--chumbo);
+  text-decoration: line-through;
+}
+
+.product-installments {
+  margin: 0;
+  font-size: var(--t-14);
+  color: var(--chumbo);
+}
+
+.product-installments strong {
+  color: var(--anil);
+}
+
+/* Tamanhos e Medidas */
+.product-size-section {
+  display: grid;
+  gap: var(--e-2);
+}
+
+.product-size-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.size-guide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.size-guide-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.size-measure-badge {
+  font-size: var(--t-13);
+  color: var(--folha);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.size-error {
+  margin: 0;
+  color: var(--pitanga);
+  font-size: var(--t-13);
+  font-weight: 600;
+}
+
+.product-stock-status {
+  font-size: var(--t-13);
+  min-height: 20px;
+}
+
+.product-stock-status.ok { color: var(--folha); }
+.product-stock-status.low { color: var(--acafrao); font-weight: 600; }
+.product-stock-status.out { color: var(--pitanga); }
+
+/* Ações de Compra */
+.product-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+.product-actions .qty {
+  flex: none;
+}
+
+.product-actions .btn-add {
+  flex: 1;
+}
+
+/* Avise-me Inline */
+.waitlist-inline {
+  display: grid;
+  gap: var(--e-2);
+  padding: var(--e-4);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+}
+
+.waitlist-inline p {
+  margin: 0;
+  font-size: var(--t-14);
+  color: var(--chumbo);
+}
+
+/* Compartilhar */
+.product-share-row {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+/* Detalhes expansíveis */
+.product-details {
+  border-top: var(--fio-fino);
+  margin-top: var(--e-2);
+}
+
+.product-details details {
+  border-bottom: var(--fio-fino);
+  padding-block: var(--e-3);
+}
+
+.product-details summary {
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.product-details summary::after {
+  content: "+";
+  font-size: var(--t-20);
+  line-height: 1;
+}
+
+.product-details details[open] summary::after {
+  content: "−";
+}
+
+.product-details-content {
+  padding-top: var(--e-3);
+  font-size: var(--t-14);
+  line-height: 1.6;
+}
+
+/* Avaliações */
+.reviews-section {
+  margin-top: var(--e-8);
+  padding-top: var(--e-7);
+  border-top: var(--fio-fino);
+}
+
+.reviews-summary-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--e-6);
+  align-items: center;
+  margin-bottom: var(--e-6);
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+}
+
+.reviews-score {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-1);
+}
+
+.reviews-big-avg {
+  font-size: var(--t-49);
+  font-weight: 800;
+  font-family: var(--fonte-titulo);
+  line-height: 1;
+}
+
+.dist-bars {
+  display: grid;
+  gap: 6px;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  font-size: var(--t-13);
+  font-variant-numeric: tabular-nums;
+}
+
+.dist-track {
+  flex: 1;
+  height: 8px;
+  background: var(--linha);
+  border-radius: var(--raio-pilula);
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  background: var(--anil);
+  border-radius: var(--raio-pilula);
+}
+
+.review-list {
+  display: grid;
+  gap: var(--e-4);
+}
+
+.review-card {
+  padding: var(--e-4);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+}
+
+.review-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--e-2);
+}
+
+.review-card-author {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.review-verified {
+  font-size: var(--t-13);
+  color: var(--folha);
+  font-weight: 600;
+}
+
+/* Modal de Zoom da Foto */
+.zoom-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.zoom-modal img {
+  max-width: 80vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--raio);
+}
+
+.zoom-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.zoom-nav-btn.prev { left: -24px; }
+.zoom-nav-btn.next { right: -24px; }
+
+/* Barra de Compra Fixa Mobile */
+.mobile-buy-bar {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  body.route-product .tabbar {
+    display: none !important;
+  }
+
+  body.route-product .mobile-buy-bar {
+    display: flex;
+    position: fixed;
+    inset: auto 0 0;
+    z-index: var(--z-abas);
+    background: var(--papel);
+    box-shadow: 0 -4px 16px rgba(17, 26, 68, 0.08);
+    padding: var(--e-3) var(--margem) calc(var(--e-3) + env(safe-area-inset-bottom));
+    align-items: center;
+    gap: var(--e-3);
+  }
+}
+
+/* Responsividade Geral */
+@media (max-width: 899px) {
+  .product-layout {
+    grid-template-columns: 1fr;
+    gap: var(--e-5);
+  }
+
+  .product-gallery-desktop {
+    display: none;
+  }
+
+  .product-gallery-mobile {
+    display: block;
+  }
+
+  .product-panel {
+    position: static;
+  }
+
+  .reviews-summary-grid {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
+  }
+
+  body.route-product {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}

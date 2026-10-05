@@ -1,1 +1,133 @@
-/* Estilos da página: cart (preenchido na tarefa desta página). */
+/* Estilos da página de Sacola (Carrinho) */
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(340px, 1fr);
+  gap: var(--e-7);
+  align-items: start;
+  margin-top: var(--e-5);
+  margin-bottom: var(--e-8);
+}
+
+.cart-items-card {
+  display: grid;
+  gap: var(--e-4);
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+}
+
+.cart-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--e-4);
+  padding-bottom: var(--e-4);
+  border-bottom: var(--fio-fino);
+}
+
+.cart-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.cart-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cart-row-name {
+  font-weight: 600;
+  color: var(--anil);
+}
+
+.cart-row-name:hover {
+  text-decoration: underline;
+}
+
+.cart-row-meta {
+  font-size: var(--t-14);
+  color: var(--chumbo);
+}
+
+.cart-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3);
+  margin-top: var(--e-2);
+}
+
+.cart-row-price {
+  font-size: var(--t-18);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Embalagem para Presente */
+.gift-card {
+  margin-top: var(--e-5);
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+  display: grid;
+  gap: var(--e-3);
+}
+
+.gift-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+  font-weight: 600;
+}
+
+.gift-card-header svg {
+  width: 20px;
+  height: 20px;
+}
+
+.gift-message-box {
+  display: grid;
+  gap: 6px;
+  margin-top: var(--e-2);
+}
+
+.gift-char-counter {
+  font-size: var(--t-13);
+  color: var(--chumbo);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Resumo da Sacola */
+.cart-summary-sticky {
+  position: sticky;
+  top: calc(var(--topo) + var(--e-5));
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+}
+
+@media (max-width: 899px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+    gap: var(--e-5);
+  }
+
+  .cart-summary-sticky {
+    position: static;
+  }
+
+  .cart-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .cart-row-price {
+    grid-column: 2;
+    text-align: left;
+    margin-top: var(--e-1);
+  }
+}

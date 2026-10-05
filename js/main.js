@@ -26,6 +26,7 @@ function render() {
 
   // A rota fica no <body> para as folhas de estilo ajustarem a moldura
   document.body.dataset.route = route;
+  document.body.classList.toggle("route-product", route === "produto");
   setTitle(route in ROUTE_TITLES ? ROUTE_TITLES[route] : "Página não encontrada");
   markCurrent(route, params);
 

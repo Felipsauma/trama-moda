@@ -295,10 +295,18 @@ function summaryHTML({ button = false, calc = false } = {}) {
       </form>
       ${ship?.cep ? `<p class="muted small">${ship.city ? `Entrega em ${esc(ship.city)} - ${esc(ship.uf)}` : "Estimativa pela região do CEP"}</p>
         ${shipOptionsHTML(shipping.quotes(ship, t.subtotal - t.discount), ship.option)}` : ""}` : ""}
-    <form class="inline-form" id="coupon-form">
-      <input name="code" placeholder="Cupom de desconto" value="${esc(t.code || "")}" aria-label="Cupom de desconto" autocapitalize="characters">
-      <button class="btn secondary small">Aplicar</button>
-    </form>
+    ${t.code ? `
+      <div class="summary-line" style="margin-block: var(--e-2);">
+        <span class="muted small">Cupom ativo</span>
+        <button type="button" class="chip removable small" id="btn-rm-coupon">${esc(t.code)} ${icon("fechar")}</button>
+      </div>
+    ` : `
+      <form class="inline-form" id="coupon-form">
+        <input name="code" placeholder="Cupom de desconto" value="" aria-label="Cupom de desconto" autocapitalize="characters">
+        <button class="btn secondary small">Aplicar</button>
+      </form>
+      <p class="err" id="coupon-err"></p>
+    `}
     <div class="summary-line total"><span>Total</span><span>${brl(t.total)}</span></div>
     ${t.shipping === null && t.subtotal ? `<p class="muted small">Mais o frete, calculado ${calc ? "pelo CEP acima" : "na finalização"}.</p>` : ""}
     ${button ? `<a href="#/checkout" class="btn block">Finalizar compra</a>` : ""}`;
@@ -307,10 +315,20 @@ function summaryHTML({ button = false, calc = false } = {}) {
 function bindSummary(el, onChange) {
   $("#coupon-form", el)?.addEventListener("submit", (e) => {
     e.preventDefault();
+    const errEl = $("#coupon-err", el);
+    if (errEl) errEl.textContent = "";
     try {
       const c = coupon.apply(e.target.code.value);
       toast(c ? `Cupom ${c} aplicado` : "Cupom removido");
-    } catch (err) { toast(err.message); }
+      onChange();
+    } catch (err) {
+      if (errEl) errEl.textContent = err.message;
+      else toast(err.message);
+    }
+  });
+  $("#btn-rm-coupon", el)?.addEventListener("click", () => {
+    coupon.remove();
+    toast("Cupom removido");
     onChange();
   });
   const sf = $("#ship-form", el);
