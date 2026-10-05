@@ -1,1 +1,148 @@
-/* Estilos da página: account (preenchido na tarefa desta página). */
+/* Estilos da página de Conta e Acesso */
+
+.auth-card {
+  max-width: 480px;
+  margin: var(--e-7) auto var(--e-8);
+  padding: var(--e-6);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--e-5);
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: var(--e-5);
+  border-bottom: var(--fio-fino);
+}
+
+.auth-tab-btn {
+  padding: var(--e-3);
+  font-weight: 600;
+  color: var(--chumbo);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  text-align: center;
+}
+
+.auth-tab-btn.active {
+  color: var(--anil);
+  border-color: var(--anil);
+}
+
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: var(--e-3);
+  background: transparent;
+  color: var(--chumbo);
+  font-size: var(--t-13);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Área do Usuário Logado */
+.account-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--e-7);
+  align-items: start;
+  margin-block: var(--e-6) var(--e-8);
+}
+
+.account-sidebar {
+  display: grid;
+  gap: var(--e-1);
+}
+
+.account-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--raio-pilula);
+  color: var(--chumbo);
+  font-weight: 500;
+  transition: all var(--rapido);
+}
+
+.account-nav-btn:hover {
+  color: var(--anil);
+  background: var(--nevoa);
+}
+
+.account-nav-btn.active {
+  color: var(--papel);
+  background: var(--anil);
+  font-weight: 600;
+}
+
+.account-content {
+  display: grid;
+  gap: var(--e-5);
+}
+
+.account-orders-list {
+  display: grid;
+  gap: var(--e-4);
+}
+
+.account-order-card {
+  padding: var(--e-4);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  display: grid;
+  gap: var(--e-3);
+}
+
+.account-order-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-order-thumbs {
+  display: flex;
+  gap: var(--e-2);
+  overflow-x: auto;
+}
+
+.account-order-thumbs .thumb {
+  width: 56px;
+}
+
+.account-order-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: var(--fio-fino);
+  padding-top: var(--e-3);
+}
+
+@media (max-width: 899px) {
+  .account-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .account-sidebar {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: var(--e-2);
+    border-bottom: var(--fio-fino);
+  }
+
+  .account-nav-btn {
+    white-space: nowrap;
+  }
+}

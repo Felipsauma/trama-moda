@@ -359,3 +359,48 @@ function pixPayload(amount, txid) {
     f("62", f("05", txid.replace(/[^A-Za-z0-9]/g, "").slice(0, 25))) + "6304";
   return body + crc16(body);
 }
+
+// ===== Validações de checkout =====
+function validateDelivery(v = {}) {
+  const errors = {};
+  const recipient = String(v.recipient || "").trim();
+  const cpf = String(v.cpf || "").trim();
+  const cep = String(v.cep || "");
+  const street = String(v.street || "").trim();
+  const number = String(v.number || "").trim();
+  const district = String(v.district || "").trim();
+  const city = String(v.city || "").trim();
+  const uf = String(v.uf || "").trim().toUpperCase();
+
+  if (recipient.split(/\s+/).filter(Boolean).length < 2) errors.recipient = "Informe nome e sobrenome.";
+  if (!validCpf(cpf)) errors.cpf = "CPF inválido.";
+  if (onlyDigits(cep).length !== 8) errors.cep = "CEP inválido.";
+  if (street.length < 3) errors.street = "Informe a rua.";
+  if (!number) errors.number = "Informe o número.";
+  if (!district) errors.district = "Informe o bairro.";
+  if (!city) errors.city = "Informe a cidade.";
+  if (!UF_REGION[uf]) errors.uf = "UF inválida.";
+
+  return errors;
+}
+
+function validateCard(v = {}, now = new Date()) {
+  const errors = {};
+  const num = onlyDigits(v.cardNumber || "");
+  const name = String(v.cardName || "").trim();
+  const [mm, yy] = String(v.cardExp || "").split("/").map(Number);
+  const cvv = String(v.cardCvv || "").trim();
+
+  if (!luhn(num)) errors.cardNumber = "Número de cartão inválido.";
+  if (name.split(/\s+/).filter(Boolean).length < 2) errors.cardName = "Informe o nome como está no cartão.";
+  if (!mm || mm < 1 || mm > 12 || !yy) {
+    errors.cardExp = "Validade inválida.";
+  } else {
+    const expEnd = new Date(2000 + yy, mm, 1); // primeiro dia do mês seguinte
+    if (expEnd <= now) errors.cardExp = "Validade inválida.";
+  }
+  if (!/^\d{3,4}$/.test(cvv)) errors.cardCvv = "CVV inválido.";
+
+  return errors;
+}
+

@@ -1,1 +1,172 @@
-/* Estilos da página: checkout (preenchido na tarefa desta página). */
+/* Estilos da página de Checkout */
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(340px, 1fr);
+  gap: var(--e-7);
+  align-items: start;
+  margin-block: var(--e-5) var(--e-8);
+}
+
+.checkout-steps {
+  display: grid;
+  gap: var(--e-5);
+}
+
+.checkout-step-card {
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+}
+
+.checkout-step-card.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--e-4);
+}
+
+.step-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--anil);
+  color: var(--papel);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--t-14);
+}
+
+.step-summary-box {
+  display: grid;
+  gap: 4px;
+  padding: var(--e-4);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+  font-size: var(--t-14);
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-3);
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--e-3);
+}
+
+/* Abas de Pagamento */
+.pay-methods-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--e-2);
+  margin-bottom: var(--e-4);
+}
+
+.pay-tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: 48px;
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio);
+  background: var(--papel);
+  color: var(--anil);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--rapido), background var(--rapido);
+}
+
+.pay-tab-btn:hover {
+  border-color: var(--anil);
+}
+
+.pay-tab-btn.active {
+  border-color: var(--anil);
+  background: var(--nevoa);
+}
+
+.card-brand-badge {
+  font-size: var(--t-13);
+  font-weight: 700;
+  color: var(--anil);
+  text-transform: uppercase;
+  margin-left: var(--e-2);
+}
+
+/* Resumo Lateral e Mobile */
+.checkout-summary-wrap {
+  position: sticky;
+  top: calc(var(--topo) + var(--e-5));
+  display: grid;
+  gap: var(--e-4);
+}
+
+.checkout-summary-wrap .panel {
+  border-radius: var(--raio);
+  padding: var(--e-5);
+  background: var(--nevoa);
+}
+
+.checkout-mini-items {
+  display: grid;
+  gap: var(--e-3);
+  margin-bottom: var(--e-4);
+}
+
+.checkout-mini-row {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  font-size: var(--t-14);
+}
+
+.checkout-mini-row .thumb {
+  width: 48px;
+}
+
+.checkout-mini-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkout-mini-row-info strong {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 899px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+    gap: var(--e-4);
+  }
+
+  .checkout-summary-wrap {
+    position: static;
+  }
+
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

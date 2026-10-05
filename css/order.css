@@ -1,1 +1,251 @@
-/* Estilos da página: order (preenchido na tarefa desta página). */
+/* Estilos da página de Pedido */
+
+.order-container {
+  max-width: 800px;
+  margin-inline: auto;
+  margin-block: var(--e-6) var(--e-8);
+  display: grid;
+  gap: var(--e-6);
+}
+
+.order-hero-status {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: var(--e-2);
+}
+
+.order-icon-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--nevoa);
+  color: var(--anil);
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--e-2);
+}
+
+.order-icon-badge.paid {
+  background: var(--folha-suave);
+  color: var(--folha);
+}
+
+.order-icon-badge.cancelled {
+  background: var(--pitanga-suave);
+  color: var(--pitanga);
+}
+
+.order-icon-badge svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Linha do tempo: fio com nós */
+.order-timeline-card {
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+}
+
+.order-timeline {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin: var(--e-5) 0 var(--e-4);
+  padding: 0;
+  list-style: none;
+}
+
+/* Fio contínuo horizontal */
+.order-timeline::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  background: var(--linha);
+  z-index: 1;
+}
+
+.timeline-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  gap: var(--e-2);
+}
+
+.timeline-node {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--papel);
+  border: 3px solid var(--linha);
+  display: grid;
+  place-items: center;
+  transition: all var(--rapido);
+}
+
+.timeline-step.done .timeline-node {
+  border-color: var(--anil);
+  background: var(--anil);
+  color: var(--papel);
+}
+
+.timeline-step.current .timeline-node {
+  border-color: var(--anil);
+  background: var(--papel);
+  box-shadow: 0 0 0 4px var(--nevoa);
+}
+
+.timeline-step.current .timeline-node::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--anil);
+}
+
+.timeline-label {
+  font-size: var(--t-13);
+  font-weight: 600;
+  color: var(--chumbo);
+}
+
+.timeline-step.done .timeline-label,
+.timeline-step.current .timeline-label {
+  color: var(--anil);
+}
+
+.timeline-date {
+  font-size: 11px;
+  color: var(--chumbo);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Blocos Pix e Boleto */
+.payment-action-card {
+  padding: var(--e-6);
+  border-radius: var(--raio);
+  background: var(--nevoa);
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: var(--e-3);
+}
+
+.qr-box {
+  background: var(--papel);
+  padding: var(--e-3);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.code-snippet {
+  background: var(--papel);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--raio);
+  border: 1px solid var(--linha);
+  font-family: monospace;
+  font-size: var(--t-13);
+  max-width: 100%;
+  word-break: break-all;
+  user-select: all;
+}
+
+/* Detalhes do Pedido */
+.order-details-card {
+  padding: var(--e-5);
+  border-radius: var(--raio);
+  background: var(--papel);
+  border: 1px solid var(--linha);
+  display: grid;
+  gap: var(--e-4);
+}
+
+.order-items-table {
+  display: grid;
+  gap: var(--e-3);
+  border-bottom: var(--fio-fino);
+  padding-bottom: var(--e-4);
+}
+
+.order-item-line {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--e-3);
+  align-items: center;
+}
+
+.order-item-line .thumb {
+  width: 56px;
+}
+
+.order-foot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  margin-top: var(--e-4);
+}
+
+/* Celular: Linha do tempo vertical */
+@media (max-width: 899px) {
+  .order-timeline {
+    flex-direction: column;
+    gap: var(--e-4);
+    align-items: flex-start;
+    padding-left: var(--e-2);
+  }
+
+  .order-timeline::before {
+    top: 16px;
+    bottom: 16px;
+    left: 27px;
+    right: auto;
+    width: 3px;
+    height: auto;
+  }
+
+  .timeline-step {
+    flex-direction: row;
+    text-align: left;
+    width: 100%;
+  }
+}
+
+/* Estilos de Impressão */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .no-print,
+  .top,
+  .foot,
+  .tabbar,
+  .order-foot-actions,
+  button,
+  .btn {
+    display: none !important;
+  }
+
+  .order-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .order-timeline-card,
+  .order-details-card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}

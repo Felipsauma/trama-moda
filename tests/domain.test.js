@@ -433,3 +433,70 @@ test("orders.reorder manda para missing o tamanho que o produto não tem e o que
   assert.deepEqual(r.missing, [{ name: p.name, size: "XXL" }, { name: p.name, size: p.sizes[0] }]);
   assert.deepEqual(get("cart.items().map((i) => [i.size, i.qty])"), [[p.sizes[0], 2], [p.sizes[1], 1]]);
 });
+
+test("validateDelivery: valida regras de entrega com mensagens esperadas", () => {
+  const { get } = load();
+  const valid = {
+    recipient: "Maria Silva",
+    cpf: "529.982.247-25",
+    cep: "01310-100",
+    street: "Avenida Paulista",
+    number: "1000",
+    district: "Bela Vista",
+    city: "São Paulo",
+    uf: "SP",
+  };
+  assert.deepEqual(get(`validateDelivery(${JSON.stringify(valid)})`), {});
+
+  const invalid = {
+    recipient: "Maria",
+    cpf: "111.111.111-11",
+    cep: "123",
+    street: "Av",
+    number: "",
+    district: "",
+    city: "",
+    uf: "XX",
+  };
+  const errs = get(`validateDelivery(${JSON.stringify(invalid)})`);
+  assert.equal(errs.recipient, "Informe nome e sobrenome.");
+  assert.equal(errs.cpf, "CPF inválido.");
+  assert.equal(errs.cep, "CEP inválido.");
+  assert.equal(errs.street, "Informe a rua.");
+  assert.equal(errs.number, "Informe o número.");
+  assert.equal(errs.district, "Informe o bairro.");
+  assert.equal(errs.city, "Informe a cidade.");
+  assert.equal(errs.uf, "UF inválida.");
+});
+
+test("validateCard: valida número por Luhn, nome, validade com base em now e CVV", () => {
+  const { get } = load();
+  const now = new Date(2026, 9, 15); // Outubro de 2026
+
+  const valid = {
+    cardNumber: "4111 1111 1111 1111",
+    cardName: "Maria Silva",
+    cardExp: "10/26", // Mês corrente: válido
+    cardCvv: "123",
+  };
+  assert.deepEqual(get(`validateCard(${JSON.stringify(valid)}, new Date(2026, 9, 15))`), {});
+
+  // Mês anterior (Setembro de 2026): vencido
+  const expired = { ...valid, cardExp: "09/26" };
+  const errExpired = get(`validateCard(${JSON.stringify(expired)}, new Date(2026, 9, 15))`);
+  assert.equal(errExpired.cardExp, "Validade inválida.");
+
+  // Número inválido por Luhn, nome incompleto, CVV incorreto
+  const invalid = {
+    cardNumber: "4111 1111 1111 1112",
+    cardName: "Maria",
+    cardExp: "15/99",
+    cardCvv: "12",
+  };
+  const errs = get(`validateCard(${JSON.stringify(invalid)}, new Date(2026, 9, 15))`);
+  assert.equal(errs.cardNumber, "Número de cartão inválido.");
+  assert.equal(errs.cardName, "Informe o nome como está no cartão.");
+  assert.equal(errs.cardExp, "Validade inválida.");
+  assert.equal(errs.cardCvv, "CVV inválido.");
+});
+
