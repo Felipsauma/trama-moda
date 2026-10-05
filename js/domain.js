@@ -95,6 +95,17 @@ const reviews = {
     (all[id] ||= []).unshift(review);
     store.set(KEYS.reviews, all);
   },
+  summary(id) {
+    const list = this.of(id);
+    const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    list.forEach((r) => { dist[r.rating]++; });
+    return { count: list.length, avg: this.avg(id), dist };
+  },
+  sorted(id, order = "recentes") {
+    const byDate = (a, b) => (b.date || 0) - (a.date || 0);
+    const by = { melhores: (a, b) => b.rating - a.rating || byDate(a, b), piores: (a, b) => a.rating - b.rating || byDate(a, b) }[order] || byDate;
+    return this.of(id).slice().sort(by);
+  },
 };
 
 // ===== Pedidos =====
@@ -115,6 +126,18 @@ const orders = {
     (o.history ||= []).push({ status, date: Date.now() });
     if (status === "Enviado" && !o.tracking) o.tracking = "TR" + String(Math.floor(Math.random() * 1e9)).padStart(9, "0") + "BR";
     this.save(list);
+  },
+  // Recoloca na sacola o que o estoque permitir; o que faltou vai em missing
+  reorder(id) {
+    const result = { added: [], missing: [] };
+    (this.find(id)?.items || []).forEach((i) => {
+      const p = findProduct(i.id);
+      let qty = 0;
+      if (p) { try { qty = cart.add(p.id, i.size, i.qty); } catch { qty = 0; } }
+      if (qty > 0) result.added.push({ id: p.id, size: i.size, qty });
+      else result.missing.push({ name: p?.name || i.name, size: i.size });
+    });
+    return result;
   },
 };
 const canCancel = (o) => ["Aguardando pagamento", "Pago"].includes(o.status);
@@ -213,6 +236,42 @@ const coupon = {
   },
 };
 
+// ===== Aviso de reposição (avise-me) =====
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const waitlist = {
+  all: () => store.get(KEYS.waitlist, []),
+  has(id, size, email) {
+    email = String(email).trim().toLowerCase();
+    return this.all().some((w) => w.id === Number(id) && w.size === size && w.email === email);
+  },
+  add(id, size, email) {
+    email = String(email ?? "").trim().toLowerCase();
+    if (!EMAIL_RE.test(email)) throw new Error("Informe um e-mail válido.");
+    const p = findProduct(id);
+    if (!p || !p.sizes.includes(size)) throw new Error("Produto ou tamanho não encontrado.");
+    if (stock.get(p.id, size) > 0) throw new Error("Este tamanho está disponível.");
+    if (this.has(p.id, size, email)) return;
+    store.set(KEYS.waitlist, [...this.all(), { id: p.id, size, email, date: Date.now() }]);
+  },
+  remove(id, size, email) {
+    email = String(email).trim().toLowerCase();
+    store.set(KEYS.waitlist, this.all().filter((w) => !(w.id === Number(id) && w.size === size && w.email === email)));
+  },
+  ofUser(email) {
+    email = String(email).trim().toLowerCase();
+    return this.all().filter((w) => w.email === email).reverse().map((w) => ({ ...w, available: stock.get(w.id, w.size) > 0 }));
+  },
+};
+
+// ===== Embalagem para presente =====
+const gift = {
+  get: () => store.get(KEYS.gift, { on: false, message: "" }),
+  set({ on, message }) {
+    store.set(KEYS.gift, { on: !!on, message: String(message ?? "").trim().slice(0, 200) });
+    bus.emit("cart");
+  },
+};
+
 // ===== Sacola =====
 const cart = {
   items: () => store.get(KEYS.cart, []).filter((i) => findProduct(i.id)),
@@ -243,7 +302,23 @@ const cart = {
     this.save(items);
     return result;
   },
-  clear() { this.save([]); },
+  remove(index) {
+    const items = this.items();
+    if (!items[index]) return null;
+    const [{ id, size, qty }] = items.splice(index, 1);
+    this.save(items);
+    return { id, size, qty };
+  },
+  // Desfaz um remove: recoloca na posição (ou soma se já voltou), limitado ao estoque
+  restore({ id, size, qty }, index) {
+    const items = this.items();
+    const existing = items.find((i) => i.id === id && i.size === size);
+    const max = stock.get(id, size);
+    if (existing) existing.qty = Math.min(existing.qty + qty, max);
+    else if (max > 0) items.splice(Math.min(index, items.length), 0, { id, size, qty: Math.min(qty, max) });
+    this.save(items);
+  },
+  clear() { store.set(KEYS.gift, { on: false, message: "" }); this.save([]); },
   count() { return this.items().reduce((n, i) => n + i.qty, 0); },
   totals() {
     const items = this.items();
@@ -253,7 +328,8 @@ const cart = {
     const ship = shipping.get();
     const quote = shipping.quotes(ship, subtotal - discount).find((q) => q.id === (ship?.option || "pac")) || null;
     const shippingCost = !items.length ? 0 : quote ? quote.price : null;
-    return { subtotal, discount, code, quote, shipping: shippingCost, total: subtotal - discount + (shippingCost || 0) };
+    const giftWrap = gift.get().on && items.length ? CONFIG.giftWrapPrice : 0;
+    return { subtotal, discount, code, quote, shipping: shippingCost, gift: giftWrap, total: subtotal - discount + (shippingCost || 0) + giftWrap };
   },
 };
 

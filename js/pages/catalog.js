@@ -1,13 +1,9 @@
 function pageCatalog(params) {
-  const maxPrice = Math.ceil(Math.max(...PRODUCTS.map((p) => p.price)) / 50) * 50;
-  const state = {
-    cat: params.get("cat") || "",
-    q: params.get("q") || "",
-    sort: params.get("sort") || "relevancia",
-    sizes: new Set((params.get("tam") || "").split(",").filter(Boolean)),
-    max: Number(params.get("max")) || maxPrice,
-    avail: params.get("disp") === "1",
-  };
+  const maxPrice = Math.ceil(Math.max(...visibleProducts().map((p) => p.price)) / 50) * 50;
+  const parsed = parseCatalogParams(params);
+  const state = { ...parsed, sizes: new Set(parsed.sizes), max: parsed.max ?? maxPrice };
+  // Estado -> filtros (preço máximo no teto = sem filtro)
+  const filters = () => ({ ...state, sizes: [...state.sizes], max: state.max < maxPrice ? state.max : null });
 
   app.innerHTML = `
     <div class="catalog-head">
@@ -42,8 +38,9 @@ function pageCatalog(params) {
             <option value="relevancia">Relevância</option>
             <option value="menor">Menor preço</option>
             <option value="maior">Maior preço</option>
-            <option value="nome">Nome A–Z</option>
+            <option value="desconto">Maior desconto</option>
             <option value="avaliacao">Mais bem avaliados</option>
+            <option value="novidades">Novidades</option>
             <option value="promo">Promoções</option>
           </select>
         </div>
@@ -51,44 +48,34 @@ function pageCatalog(params) {
       </div>
     </div>`;
 
-  $("#sort").value = state.sort;
+  const sortValue = () => (state.promo && state.sort === "desconto" ? "promo" : state.sort);
+  $("#sort").value = sortValue();
   if (window.innerWidth < 860) $("#filters").open = false;
 
   const render = () => {
-    const inCat = PRODUCTS.filter((p) => !state.cat || p.cat === state.cat);
+    const inCat = visibleProducts().filter((p) => !state.cat || p.cat === state.cat);
     const allSizes = sortSizes(new Set(inCat.flatMap((p) => p.sizes)));
     $("#size-filter").innerHTML = allSizes.map((s) => `<button class="size sm ${state.sizes.has(s) ? "active" : ""}" data-size="${s}">${s}</button>`).join("");
 
-    let list = searchProducts(state.q).filter((p) =>
-      (!state.cat || p.cat === state.cat) &&
-      p.price <= state.max &&
-      (!state.sizes.size || p.sizes.some((s) => state.sizes.has(s) && stock.get(p.id, s) > 0)) &&
-      (!state.avail || stock.total(p) > 0));
-    if (state.sort === "menor") list.sort((a, b) => a.price - b.price);
-    if (state.sort === "maior") list.sort((a, b) => b.price - a.price);
-    if (state.sort === "nome") list.sort((a, b) => a.name.localeCompare(b.name));
-    if (state.sort === "avaliacao") list.sort((a, b) => reviews.avg(b.id) - reviews.avg(a.id));
-    if (state.sort === "promo") list = list.filter((p) => p.oldPrice);
+    const list = filterProducts(filters());
 
     $$(".chip").forEach((c) => c.classList.toggle("active", c.dataset.cat === state.cat));
     $("#max-label").textContent = brl(state.max);
-    $("#cat-title").textContent = state.q ? `Busca: "${state.q}"` : state.sort === "promo" ? "Promoções" : CATEGORIES[state.cat] || "Catálogo";
+    $("#cat-title").textContent = state.q ? `Busca: "${state.q}"` : state.promo ? "Promoções" : CATEGORIES[state.cat] || "Catálogo";
     $("#result-count").textContent = `${list.length} produto${list.length === 1 ? "" : "s"}`;
     $("#grid").innerHTML = list.length ? list.map(productCard).join("") : `<div class="empty" style="grid-column:1/-1"><h2>Nada encontrado</h2><p>Tente remover alguns filtros.</p></div>`;
 
-    const qs = new URLSearchParams();
-    if (state.cat) qs.set("cat", state.cat);
-    if (state.q) qs.set("q", state.q);
-    if (state.sort !== "relevancia") qs.set("sort", state.sort);
-    if (state.sizes.size) qs.set("tam", [...state.sizes].join(","));
-    if (state.max < maxPrice) qs.set("max", state.max);
-    if (state.avail) qs.set("disp", "1");
-    history.replaceState(null, "", "#/catalogo" + (qs.toString() ? "?" + qs : ""));
+    const qs = catalogQuery(filters());
+    history.replaceState(null, "", "#/catalogo" + (qs ? "?" + qs : ""));
     $$("#nav [data-nav]").forEach((a) => a.classList.toggle("active", a.dataset.nav === state.cat && !state.q));
   };
 
   $("#q").addEventListener("input", debounce((e) => { state.q = e.target.value.trim(); render(); }));
-  $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
+  $("#sort").addEventListener("change", (e) => {
+    state.promo = e.target.value === "promo";
+    state.sort = state.promo ? "desconto" : e.target.value;
+    render();
+  });
   $("#max").addEventListener("input", (e) => { state.max = Number(e.target.value); render(); });
   $("#avail").addEventListener("change", (e) => { state.avail = e.target.checked; render(); });
   $("#chips").addEventListener("click", (e) => {
@@ -103,7 +90,7 @@ function pageCatalog(params) {
     render();
   });
   $("#clear").addEventListener("click", () => {
-    Object.assign(state, { cat: "", q: "", sort: "relevancia", max: maxPrice, avail: false });
+    Object.assign(state, { cat: "", q: "", sort: "relevancia", max: maxPrice, avail: false, promo: false });
     state.sizes.clear();
     $("#q").value = ""; $("#sort").value = "relevancia"; $("#max").value = maxPrice; $("#avail").checked = false;
     render();

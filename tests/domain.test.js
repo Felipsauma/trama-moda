@@ -204,3 +204,154 @@ test("searchProducts ignora acentos e maiúsculas e exige todos os termos", () =
   assert.ok(cal > get('searchProducts("calcados xyzinexistente").length'));
   assert.equal(get('searchProducts("calcados xyzinexistente").length'), 0);
 });
+
+// ===== Novas regras (redesenho) =====
+const soldOut = (get) => {
+  const p = get("PRODUCTS.find((x) => x.sizes.length > 1)");
+  get(`stock.set(${p.id}, "${p.sizes[0]}", 0)`);
+  return { id: p.id, size: p.sizes[0] };
+};
+const errOf = (get, expr) => { try { get(expr); } catch (e) { return e.message; } return null; };
+const other = (get, ...ids) => get(`PRODUCTS.find((x) => x.sizes.length > 1 && ![${ids}].includes(x.id))`);
+
+test("waitlist: valida, não duplica, lista por usuário e marca o que voltou ao estoque", () => {
+  const { get, localStorage } = load();
+  const { id, size } = soldOut(get);
+  assert.equal(errOf(get, `waitlist.add(${id}, "${size}", "sem-arroba")`), "Informe um e-mail válido.");
+  assert.equal(errOf(get, `waitlist.add(${id}, "${size}", "")`), "Informe um e-mail válido.");
+  get(`stock.set(${id}, "${size}", 2)`);
+  assert.equal(errOf(get, `waitlist.add(${id}, "${size}", "ana@x.com")`), "Este tamanho está disponível.");
+  assert.ok(errOf(get, `waitlist.add(99999, "M", "ana@x.com")`));
+  assert.ok(errOf(get, `waitlist.add(${id}, "XXL", "ana@x.com")`));
+  get(`stock.set(${id}, "${size}", 0)`);
+
+  get(`waitlist.add(${id}, "${size}", "Ana@X.com")`);
+  get(`waitlist.add(${id}, "${size}", "ana@x.com")`); // duplicata
+  assert.equal(get("waitlist.all().length"), 1);
+  const saved = JSON.parse(localStorage.getItem("trama_waitlist"));
+  assert.equal(saved[0].email, "ana@x.com");
+  assert.equal(typeof saved[0].date, "number");
+  assert.equal(get(`waitlist.has(${id}, "${size}", "ANA@x.com")`), true);
+  assert.equal(get(`waitlist.has(${id}, "${size}", "b@x.com")`), false);
+
+  const p2 = other(get, id);
+  get(`stock.set(${p2.id}, "${p2.sizes[0]}", 0)`);
+  get(`waitlist.add(${p2.id}, "${p2.sizes[0]}", "ana@x.com")`);
+  get(`waitlist.add(${p2.id}, "${p2.sizes[0]}", "bia@x.com")`);
+  let mine = get(`waitlist.ofUser("ANA@x.com")`);
+  assert.deepEqual(mine.map((e) => [e.id, e.available]), [[p2.id, false], [id, false]]); // mais recente primeiro
+  get(`stock.set(${id}, "${size}", 3)`);
+  mine = get(`waitlist.ofUser("ana@x.com")`);
+  assert.equal(mine.find((e) => e.id === id).available, true);
+  assert.equal(get("waitlist.all().length"), 3);
+
+  get(`waitlist.remove(${id}, "${size}", "ana@x.com")`);
+  assert.equal(get(`waitlist.has(${id}, "${size}", "ana@x.com")`), false);
+  assert.equal(get("waitlist.all().length"), 2);
+});
+
+test("gift: padrão, corte em 200 caracteres e aviso", () => {
+  const { get } = load();
+  get("var seen = []; bus.on((t) => seen.push(t));");
+  assert.deepEqual(get("gift.get()"), { on: false, message: "" });
+  get(`gift.set({ on: true, message: "  ${"a".repeat(250)}  " })`);
+  const g = get("gift.get()");
+  assert.equal(g.on, true);
+  assert.equal(g.message.length, 200);
+  assert.deepEqual(get("seen"), ["cart"]);
+});
+
+test("cart.totals: embalagem para presente entra no total, sem frete grátis nem desconto", () => {
+  const { get } = load();
+  const { id, size, price } = withStock(get);
+  assert.equal(get("CONFIG.giftWrapPrice"), 9.9);
+  assert.equal(get("cart.totals().gift"), 0);
+  get(`gift.set({ on: true, message: "" })`);
+  assert.equal(get("cart.totals().gift"), 0); // sem itens
+  get(`cart.add(${id}, "${size}", 1)`);
+  const t = get("cart.totals()");
+  assert.equal(t.gift, 9.9);
+  assert.equal(t.total, price + 9.9);
+  // cupom não incide sobre a embalagem
+  get("store.set(KEYS.coupon, 'TRAMA20')");
+  const c = get("cart.totals()");
+  assert.ok(Math.abs(c.discount - price * 0.2) < 1e-9);
+  assert.ok(Math.abs(c.total - (price * 0.8 + 9.9)) < 1e-9);
+  // limpar a sacola desliga a embalagem
+  get("cart.clear()");
+  assert.deepEqual(get("gift.get()"), { on: false, message: "" });
+  assert.equal(get("cart.totals().gift"), 0);
+});
+
+test("cart.remove devolve o item e cart.restore o recoloca na posição, limitado ao estoque", () => {
+  const { get } = load();
+  const a = withStock(get, 5);
+  const b = other(get, a.id);
+  get(`stock.set(${b.id}, "${b.sizes[0]}", 5)`);
+  get(`cart.add(${a.id}, "${a.size}", 2)`);
+  get(`cart.add(${b.id}, "${b.sizes[0]}", 3)`);
+  assert.equal(get("cart.remove(9)"), null);
+  assert.deepEqual(get("cart.remove(0)"), { id: a.id, size: a.size, qty: 2 });
+  assert.deepEqual(get("cart.items().map((i) => i.id)"), [b.id]);
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 2 }, 0)`);
+  assert.deepEqual(get("cart.items().map((i) => [i.id, i.qty])"), [[a.id, 2], [b.id, 3]]);
+  // estoque caiu enquanto o aviso estava aberto
+  get("cart.remove(0)");
+  get(`stock.set(${a.id}, "${a.size}", 1)`);
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 2 }, 0)`);
+  assert.equal(get("cart.items()[0].qty"), 1);
+  // mesmo item já voltou para a sacola: soma, respeitando o estoque
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 2 }, 0)`);
+  assert.equal(get(`cart.items().filter((i) => i.id === ${a.id}).length`), 1);
+  assert.equal(get("cart.items()[0].qty"), 1);
+  // índice além do fim vai para o final
+  get("cart.remove(0)");
+  get(`stock.set(${a.id}, "${a.size}", 5)`);
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 1 }, 7)`);
+  assert.deepEqual(get("cart.items().map((i) => i.id)"), [b.id, a.id]);
+  // sem estoque: não volta
+  get("cart.remove(1)");
+  get(`stock.set(${a.id}, "${a.size}", 0)`);
+  get(`cart.restore({ id: ${a.id}, size: "${a.size}", qty: 1 }, 0)`);
+  assert.deepEqual(get("cart.items().map((i) => i.id)"), [b.id]);
+});
+
+test("orders.reorder põe na sacola o que há em estoque e lista o que faltou", () => {
+  const { get } = load();
+  const a = withStock(get, 5);
+  const b = other(get, a.id);
+  const c = other(get, a.id, b.id);
+  get(`stock.set(${b.id}, "${b.sizes[0]}", 0)`);
+  get(`stock.set(${c.id}, "${c.sizes[0]}", 2)`);
+  const order = {
+    id: "R1", email: "a@x.com", date: 1, status: "Entregue", total: 1,
+    items: [
+      { id: a.id, name: "Peça A", size: a.size, qty: 2, price: 1 },
+      { id: b.id, name: "Peça B", size: b.sizes[0], qty: 1, price: 1 },
+      { id: c.id, name: "Peça C", size: c.sizes[0], qty: 5, price: 1 },
+      { id: 99999, name: "Peça fantasma", size: "M", qty: 1, price: 1 },
+    ],
+  };
+  get(`orders.save([${JSON.stringify(order)}])`);
+  const r = get(`orders.reorder("R1")`);
+  assert.deepEqual(r.added, [{ id: a.id, size: a.size, qty: 2 }, { id: c.id, size: c.sizes[0], qty: 2 }]);
+  assert.deepEqual(r.missing, [{ name: b.name, size: b.sizes[0] }, { name: "Peça fantasma", size: "M" }]);
+  assert.deepEqual(get("cart.items().map((i) => [i.id, i.qty])"), [[a.id, 2], [c.id, 2]]);
+  assert.deepEqual(get(`orders.reorder("nao-existe")`), { added: [], missing: [] });
+});
+
+test("reviews.summary e reviews.sorted", () => {
+  const { get } = load();
+  assert.deepEqual(get("reviews.summary(1)"), { count: 0, avg: 0, dist: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } });
+  [[5, 1], [3, 2], [5, 3], [1, 4]].forEach(([rating, date]) => get(`reviews.add(1, { rating: ${rating}, text: "texto de teste ${date}", date: ${date} })`));
+  const s = get("reviews.summary(1)");
+  assert.equal(s.count, 4);
+  assert.equal(s.avg, 3.5);
+  assert.deepEqual(s.dist, { 5: 2, 4: 0, 3: 1, 2: 0, 1: 1 });
+  assert.deepEqual(get("reviews.sorted(1).map((r) => r.date)"), [4, 3, 2, 1]);
+  assert.deepEqual(get("reviews.sorted(1, 'recentes').map((r) => r.date)"), [4, 3, 2, 1]);
+  assert.deepEqual(get("reviews.sorted(1, 'melhores').map((r) => r.rating)"), [5, 5, 3, 1]);
+  assert.deepEqual(get("reviews.sorted(1, 'piores').map((r) => r.rating)"), [1, 3, 5, 5]);
+  // empate de nota: o mais recente primeiro
+  assert.deepEqual(get("reviews.sorted(1, 'melhores').map((r) => r.date)").slice(0, 2), [3, 1]);
+});

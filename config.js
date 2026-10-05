@@ -12,6 +12,7 @@ const CONFIG = {
   freeShippingFrom: 299,
   pixDiscount: 0.05,
   maxInstallments: 6,
+  giftWrapPrice: 9.9,        // embalagem para presente
 
   // Cupons: percentual de desconto. "firstPurchase" = só vale na primeira compra.
   coupons: {

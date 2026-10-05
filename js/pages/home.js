@@ -1,7 +1,7 @@
 function pageHome() {
-  const bestSellers = PRODUCTS.filter((p) => p.tag === "Mais vendido").slice(0, 4);
-  const news = PRODUCTS.filter((p) => p.tag === "Novo").slice(0, 4);
-  const seen = recent.list().slice(0, 4).map(findProduct);
+  const bestSellers = visibleProducts().filter((p) => p.tag === "Mais vendido").slice(0, 4);
+  const news = visibleProducts().filter((p) => p.tag === "Novo").slice(0, 4);
+  const seen = recent.list().map(findProduct).filter((p) => !p.hidden).slice(0, 4);
   const img = (id, n = 1) => `img/p${id}-${n}.webp`;
   app.innerHTML = `
     <section class="hero">

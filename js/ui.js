@@ -186,11 +186,11 @@ function sizeGuide(p) {
   if (p.cat === "calcados") {
     return `<h2>Guia de medidas · Calçados</h2><p class="muted">Meça o pé do calcanhar até a ponta do dedo maior.</p>
       <table class="table"><tr><th>Número</th><th>Comprimento do pé</th></tr>
-      ${[[34, 22.5], [35, 23], [36, 23.5], [37, 24.5], [38, 25], [39, 25.5], [40, 26.5], [41, 27], [42, 27.5], [43, 28.5]].map(([n, c]) => `<tr><td>${n}</td><td>${c} cm</td></tr>`).join("")}</table>`;
+      ${SIZE_TABLES.calcados.map((r) => `<tr><td>${r.size}</td><td>${r.foot} cm</td></tr>`).join("")}</table>`;
   }
   return `<h2>Guia de medidas · Roupas</h2><p class="muted">Medidas do corpo, em centímetros.</p>
     <table class="table"><tr><th>Tamanho</th><th>Busto/Tórax</th><th>Cintura</th><th>Quadril</th></tr>
-    ${[["PP", "80–84", "62–66", "86–90"], ["P", "85–89", "67–71", "91–95"], ["M", "90–95", "72–77", "96–101"], ["G", "96–102", "78–84", "102–108"], ["GG", "103–110", "85–92", "109–116"]].map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;
+    ${SIZE_TABLES.roupas.map((r) => `<tr><td>${r.size}</td>${[r.bust, r.waist, r.hip].map((c) => `<td>${c[0]}–${c[1]}</td>`).join("")}</tr>`).join("")}</table>`;
 }
 
 // ===== Cabeçalho e busca =====

@@ -6,7 +6,7 @@ const path = require("node:path");
 const { webcrypto } = require("node:crypto");
 
 const root = path.resolve(__dirname, "..", "..");
-const DEFAULT_FILES = ["config.js", "products.js", "js/core.js", "js/domain.js", "js/catalog.js"];
+const DEFAULT_FILES = ["config.js", "products.js", "js/core.js", "js/domain.js", "js/catalog.js", "js/reports.js"];
 
 function memoryStorage() {
   const data = new Map();

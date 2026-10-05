@@ -6,9 +6,7 @@ function pageAdmin(params) {
   }
   const tab = params.get("aba") || "pedidos";
   const all = orders.all().slice().reverse();
-  const valid = all.filter((o) => !["Aguardando pagamento", "Cancelado"].includes(o.status));
-  const revenue = valid.reduce((s, o) => s + o.total, 0);
-  const outSkus = PRODUCTS.flatMap((p) => p.sizes.map((s) => stock.get(p.id, s))).filter((n) => n === 0).length;
+  const kpi = storeKpis(all);
 
   app.innerHTML = `
     <div class="account-head">
@@ -16,10 +14,10 @@ function pageAdmin(params) {
       <a href="#/conta" class="btn ghost">Voltar à conta</a>
     </div>
     <div class="kpis">
-      <div class="kpi"><span>Faturamento</span><strong>${brl(revenue)}</strong><small>${valid.length} pedido(s) pago(s)</small></div>
-      <div class="kpi"><span>Ticket médio</span><strong>${brl(valid.length ? revenue / valid.length : 0)}</strong><small>por pedido pago</small></div>
-      <div class="kpi"><span>Aguardando pagamento</span><strong>${all.filter((o) => o.status === "Aguardando pagamento").length}</strong><small>Pix e boleto</small></div>
-      <div class="kpi"><span>Tamanhos esgotados</span><strong>${outSkus}</strong><small>de ${PRODUCTS.reduce((n, p) => n + p.sizes.length, 0)} no total</small></div>
+      <div class="kpi"><span>Faturamento</span><strong>${brl(kpi.revenue)}</strong><small>${kpi.paid} pedido(s) pago(s)</small></div>
+      <div class="kpi"><span>Ticket médio</span><strong>${brl(kpi.avgTicket)}</strong><small>por pedido pago</small></div>
+      <div class="kpi"><span>Aguardando pagamento</span><strong>${kpi.awaiting}</strong><small>Pix e boleto</small></div>
+      <div class="kpi"><span>Tamanhos esgotados</span><strong>${kpi.outSkus}</strong><small>de ${kpi.totalSkus} no total</small></div>
     </div>
     <div class="tabs">
       <a href="#/admin?aba=pedidos" class="${tab === "pedidos" ? "active" : ""}">Pedidos (${all.length})</a>

@@ -127,7 +127,7 @@ function pageProduct(id) {
 
     <section class="section">
       <div class="section-head"><div><span class="eyebrow">Combine com</span><h2>Você também pode gostar</h2></div></div>
-      <div class="grid">${PRODUCTS.filter((x) => x.cat === p.cat && x.id !== p.id).slice(0, 4).map(productCard).join("")}</div>
+      <div class="grid">${visibleProducts().filter((x) => x.cat === p.cat && x.id !== p.id).slice(0, 4).map(productCard).join("")}</div>
     </section>`;
 
   renderReviews();
