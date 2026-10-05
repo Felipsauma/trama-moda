@@ -1,1 +1,234 @@
-/* Estilos da página: catalog (preenchido na tarefa desta página). */
+/* Estilos da página: Catálogo e Favoritos */
+
+.catalog-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-2) var(--e-4);
+  margin-block: var(--e-6) var(--e-5);
+}
+
+.catalog-head-left {
+  display: flex;
+  align-items: baseline;
+  gap: var(--e-3);
+  flex-wrap: wrap;
+}
+
+.catalog-head h1 {
+  margin: 0;
+}
+
+.catalog-count {
+  font-size: var(--t-16);
+  color: var(--chumbo);
+}
+
+/* Barra de ferramentas e filtros horizontal */
+.catalog-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-4);
+  margin-bottom: var(--e-6);
+  padding-bottom: var(--e-5);
+  border-bottom: var(--fio-fino);
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.filter-popover-anchor {
+  position: relative;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  min-height: var(--alvo);
+  padding: 0 var(--e-4);
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-pilula);
+  background: var(--papel);
+  color: var(--anil);
+  font-size: var(--t-14);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--rapido), background-color var(--rapido);
+}
+
+.filter-btn:hover {
+  border-color: var(--anil);
+}
+
+.filter-btn.active,
+.filter-btn[aria-expanded="true"] {
+  border-color: var(--anil);
+  background: var(--nevoa);
+}
+
+.filter-btn svg {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--rapido);
+}
+
+.filter-btn[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+}
+
+/* Popovers de Tamanho e Preço */
+.filter-popover {
+  position: absolute;
+  top: calc(100% + var(--e-2));
+  left: 0;
+  z-index: var(--z-popover);
+  width: 280px;
+  padding: var(--e-4);
+  border-radius: var(--raio);
+  background: var(--papel);
+  box-shadow: var(--sombra);
+  animation: modal-in var(--rapido) var(--curva) both;
+}
+
+.filter-popover-title {
+  margin: 0 0 var(--e-3);
+  font-size: var(--t-14);
+  font-weight: 700;
+  color: var(--anil);
+}
+
+.price-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--e-2);
+  margin-bottom: var(--e-3);
+}
+
+.price-inputs .field {
+  margin-bottom: 0;
+}
+
+.price-inputs input {
+  font-size: var(--t-14);
+  padding: 0 var(--e-2);
+}
+
+.price-shortcuts {
+  display: grid;
+  gap: var(--e-1);
+}
+
+.price-shortcut-btn {
+  text-align: left;
+  padding: var(--e-2);
+  border-radius: var(--raio);
+  font-size: var(--t-13);
+  color: var(--anil);
+  cursor: pointer;
+  background: transparent;
+  transition: background var(--rapido);
+}
+
+.price-shortcut-btn:hover {
+  background: var(--nevoa);
+}
+
+/* Densidade da grade */
+.density-toggle {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-pilula);
+  padding: 2px;
+  background: var(--papel);
+}
+
+.density-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--raio-pilula);
+  color: var(--chumbo);
+  cursor: pointer;
+  transition: background var(--rapido), color var(--rapido);
+}
+
+.density-btn:hover {
+  color: var(--anil);
+}
+
+.density-btn.active,
+.density-btn[aria-pressed="true"] {
+  background: var(--anil);
+  color: var(--papel);
+}
+
+.density-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Chips ativos */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-2);
+}
+
+.btn-mobile-filters {
+  display: none;
+}
+
+/* Modal / Folha de filtros no celular */
+.sheet-filters {
+  display: grid;
+  gap: var(--e-5);
+  padding-bottom: var(--e-4);
+}
+
+.sheet-filters-section h3 {
+  margin: 0 0 var(--e-3);
+  font-size: var(--t-16);
+}
+
+.sheet-filter-group {
+  display: grid;
+  gap: var(--e-2);
+}
+
+/* Responsividade */
+@media (max-width: 899px) {
+  .desktop-filters {
+    display: none;
+  }
+
+  .btn-mobile-filters {
+    display: inline-flex;
+  }
+
+  .filter-row {
+    flex-wrap: nowrap;
+  }
+}
