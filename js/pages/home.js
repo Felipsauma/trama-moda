@@ -1,53 +1,26 @@
-// Página inicial: hero em tecido plano, novidades, cupom, mais vendidos, vistos e fatos da loja.
+// Página inicial: hero com retalhos e fios, novidades, cupom, mais vendidos, vistos e fatos da loja.
 
-// Retalhos do hero (categoria, peça da foto) e as cores dos três fios que os atravessam
+// Retalhos do hero: categoria e peça da foto
 const HERO_PATCHES = [["feminino", 8], ["masculino", 1], ["calcados", 15], ["acessorios", 22]];
-const HERO_THREADS = ["feminino", "masculino", "acessorios"];
 const HOME_COUPON = "TRAMA20";
 
 function heroWeave(list) {
   const count = (cat) => list.filter((p) => p.cat === cat).length;
+  // Cada retalho tem um fio na cor da categoria, costurado abaixo da foto; eles se desenham um após o outro
   const patch = ([cat, id], i) => {
     const p = findProduct(id);
     const n = count(cat);
-    // Ligamento tela: o fio passa por cima quando (retalho + fio) é par, por baixo quando é ímpar
-    const over = HERO_THREADS.map((t, j) => ((i + j) % 2 === 0 ? `<span class="thread thread-over t${j}" data-cat="${t}"></span>` : "")).join("");
     return `
-      <a class="patch" data-cat="${cat}" href="#/catalogo?cat=${cat}">
-        <span class="patch-swatch"><img src="${p.images[0]}" alt="" width="500" height="625">${over}</span>
+      <a class="patch" data-cat="${cat}" href="#/catalogo?cat=${cat}" style="--i:${i}">
+        <span class="patch-swatch"><img src="${p.images[0]}" alt="" width="500" height="625"></span>
+        <span class="thread" aria-hidden="true"></span>
         <span class="patch-caption">
           <span class="patch-name">${esc(CATEGORIES[cat])}</span>
           <span class="patch-count">${n} ${n === 1 ? "peça" : "peças"}</span>
         </span>
       </a>`;
   };
-  const threads = HERO_THREADS.map((t, j) => `<span class="thread t${j}" data-cat="${t}"></span>`).join("");
-  // Duas fileiras de dois retalhos: lado a lado no desktop (uma faixa só), empilhadas no celular (2×2)
-  return `
-    <div class="weave" id="weave">
-      ${[0, 2].map((start) => `
-        <div class="weave-row">
-          <span class="weave-threads" aria-hidden="true">${threads}</span>
-          ${HERO_PATCHES.slice(start, start + 2).map((h, k) => patch(h, start + k)).join("")}
-        </div>`).join("")}
-    </div>`;
-}
-
-// Sequência de entrada: cada fio se desenha da esquerda para a direita (0,8s), um após o outro (0,2s).
-// Cada trecho recebe o instante e a duração proporcionais à sua posição no percurso do fio.
-function timeWeave(weave) {
-  const rows = $$(".weave-row", weave);
-  const box = weave.getBoundingClientRect();
-  const stacked = rows[1].offsetTop > rows[0].offsetTop;
-  const passes = stacked ? 2 : 1;
-  $$(".thread", weave).forEach((el) => {
-    const r = el.getBoundingClientRect();
-    const j = Number(el.className.match(/\bt(\d)\b/)[1]);
-    const row = stacked ? rows.indexOf(el.closest(".weave-row")) : 0;
-    const start = (row + (r.left - box.left) / box.width) / passes;
-    el.style.setProperty("--t0", `${(j * 0.2 + start * 0.8).toFixed(3)}s`);
-    el.style.setProperty("--dur", `${Math.max(0.01, (r.width / box.width / passes) * 0.8).toFixed(3)}s`);
-  });
+  return `<div class="container weave">${HERO_PATCHES.map(patch).join("")}</div>`;
 }
 
 function couponBandHTML() {
@@ -105,8 +78,6 @@ function pageHome() {
         </ul>
       </section>
     </div>`;
-
-  timeWeave($("#weave"));
 
   $("#coupon-apply").addEventListener("click", (e) => {
     try {

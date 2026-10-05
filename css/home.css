@@ -1,8 +1,9 @@
-/* Página inicial: hero em tecido plano, faixa do cupom e fatos da loja. */
+/* Página inicial: hero com retalhos e fios, faixa do cupom e fatos da loja. */
 
 /* ---------- Hero ---------- */
 .hero { padding-block: var(--e-7) var(--e-8); overflow: hidden; }
-.hero-text { margin-bottom: var(--e-7); }
+/* Título à esquerda; frase e botão à direita, apoiados na base do título */
+.hero-text { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--e-5) var(--e-7); margin-bottom: var(--e-7); }
 .hero h1 {
   font-size: var(--t-hero);
   font-weight: 800;
@@ -10,48 +11,29 @@
   letter-spacing: -0.035em;
   text-wrap: initial;
 }
-.hero-lead { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-4) var(--e-6); margin-top: var(--e-5); }
-.hero-lead p { margin: 0; font-size: var(--t-20); color: var(--chumbo); }
+.hero-lead { display: flex; flex-direction: column; align-items: flex-start; gap: var(--e-4); max-width: 30ch; padding-bottom: var(--e-2); }
+.hero-lead p { margin: 0; font-size: var(--t-20); line-height: 1.35; color: var(--chumbo); text-wrap: balance; }
 
-/* Tecido: duas fileiras de dois retalhos. No desktop ficam lado a lado e os fios se emendam. */
-.weave {
-  /* margem lateral do contêiner; a porcentagem é da fileira (metade da faixa no desktop) */
-  --lado: max(var(--margem), calc((200% - var(--largura)) / 2));
-  --vao: var(--e-5);
-  --legenda: 68px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-.weave-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--vao);
-}
-.weave-row:first-child { padding-left: var(--lado); padding-right: calc(var(--vao) / 2); }
-.weave-row:last-child { padding-right: var(--lado); padding-left: calc(var(--vao) / 2); }
+/* Tecido: quatro retalhos lado a lado (2×2 no celular) */
+.weave { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--e-5); }
 
-/* Fios: 4px, na cor do fio da categoria. Os de trás atravessam a fileira; os retalhos (opacos) os escondem. */
+/* Fio: costura na cor da categoria, abaixo da foto. Nunca passa por cima da imagem. */
 .thread {
-  position: absolute;
-  left: 0;
-  right: 0;
+  display: block;
   height: 4px;
-  margin-top: -2px;
+  margin-block: var(--e-3) 4px;
+  border-radius: var(--raio-pilula);
   background: var(--fio);
-  animation: thread-draw var(--dur, 0.8s) linear var(--t0, 0s) both;
+  transform-origin: left;
+  animation: thread-draw 0.5s var(--curva) calc(0.15s + var(--i, 0) * 0.14s) both;
+  transition: height var(--rapido) var(--curva), margin-bottom var(--rapido) var(--curva);
 }
-@keyframes thread-draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
-.t0 { --y: 0.16; }
-.t1 { --y: 0.7; }
-.t2 { --y: 0.84; }
-.weave-threads { position: absolute; inset: 0 0 var(--legenda); }
-.weave-threads .thread { top: calc(100% * var(--y)); }
-/* Trecho "por cima": desenhado sobre a foto, só onde o ligamento manda */
-.thread-over { top: calc(100% * var(--y)); z-index: 1; }
+@keyframes thread-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* Ao passar o mouse o fio engrossa para baixo, sem empurrar a legenda */
+.patch:hover .thread, .patch:focus-visible .thread { height: 8px; margin-bottom: 0; }
 
 .patch { position: relative; display: block; min-width: 0; }
-.patch-caption { display: flex; flex-direction: column; height: var(--legenda); padding-top: var(--e-3); }
+.patch-caption { display: flex; flex-direction: column; padding-top: var(--e-2); }
 .patch-swatch {
   position: relative;
   display: block;
@@ -76,7 +58,6 @@
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
-.patch:hover .patch-name { text-decoration: underline; text-decoration-color: var(--fio); text-decoration-thickness: 3px; text-underline-offset: 5px; }
 .patch-count { color: var(--chumbo); font-size: var(--t-14); line-height: 1.5; }
 .patch:focus-visible { outline-offset: 4px; }
 
@@ -124,10 +105,11 @@
   .hero { padding-block: var(--e-6) var(--e-7); }
   .hero-text { margin-bottom: var(--e-6); }
   .hero-lead p { font-size: var(--t-16); }
-  .weave { --lado: var(--margem); --vao: var(--e-3); --legenda: 60px; grid-template-columns: 1fr; row-gap: var(--e-5); }
-  .weave-row:first-child, .weave-row:last-child { padding-inline: var(--lado); }
+  .hero-lead { max-width: none; padding-bottom: 0; }
+  .weave { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-5) var(--e-3); }
+  .thread { margin-top: var(--e-2); }
   .patch-name { font-size: var(--t-20); }
-  .patch-caption { padding-top: var(--e-2); }
+  .patch-caption { padding-top: var(--e-1); }
   .home { gap: var(--e-8); padding-bottom: var(--e-8); }
   .home .rail-track { grid-auto-columns: 62%; }
   .coupon-band { padding: var(--e-5); margin-inline: calc(-1 * var(--margem)); border-radius: 0; padding-inline: var(--margem); }
@@ -140,5 +122,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .thread { animation: none; }
+  .thread { animation: none; transition: none; }
 }
