@@ -33,6 +33,9 @@
   font-stretch: 80%;
   line-height: 1;
   letter-spacing: -0.03em;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--alvo);
   padding-bottom: 4px; /* compensa a ausência de descendentes: alinha a palavra pelo olho */
 }
 .top-nav { display: flex; align-self: stretch; gap: var(--e-5); }

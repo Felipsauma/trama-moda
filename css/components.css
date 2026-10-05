@@ -103,6 +103,8 @@
 }
 .link:hover { text-decoration-thickness: 2.5px; }
 .link.danger { color: var(--pitanga); }
+/* Link sozinho numa linha (cabeça de seção, ações): ganha a altura de toque */
+.section-head .link, .link.tall { display: inline-flex; align-items: center; min-height: var(--alvo); }
 
 /* ---------- Chip ----------
    .chip | .active ou aria-pressed="true" (selecionado) | .chip-dot (ponto do fio, usa --fio)
@@ -144,9 +146,9 @@
   padding: 0 var(--e-4);
   border: 1.5px solid transparent;
   border-radius: var(--raio);
-  background: var(--nevoa);
+  background-color: var(--campo, var(--nevoa));
   color: var(--anil);
-  transition: border-color var(--rapido), background var(--rapido);
+  transition: border-color var(--rapido), background-color var(--rapido);
 }
 .textarea, .field textarea { padding-block: var(--e-3); min-height: 112px; resize: vertical; line-height: 1.5; }
 .select, .field select {
@@ -173,10 +175,8 @@
 .hint { margin: 0; color: var(--chumbo); font-size: var(--t-13); }
 .inline-form { display: flex; gap: var(--e-2); align-items: center; margin-block: var(--e-3); }
 .inline-form input { flex: 1; min-width: 0; }
-/* Sobre painel névoa, o campo fica papel */
-.panel .input, .panel .select, .panel .textarea, .panel .field input, .panel .field select, .panel .field textarea,
-.panel .inline-form input, .card .input, .card .select, .card .field input, .card .field select, .card .field textarea,
-.card .inline-form input { background-color: var(--papel); }
+/* Sobre painel névoa, o campo fica papel (os painéis trocam --campo) */
+.panel, .card, .drawer-foot { --campo: var(--papel); }
 
 /* ---------- Linhas de marcar (caixa e rádio) ----------
    <label class="check"><input type="checkbox"> Texto</label> */

@@ -57,7 +57,7 @@ function couponBandHTML() {
       <h2>20% em qualquer peça com o cupom <span class="coupon-code">${HOME_COUPON}</span></h2>
       <div class="coupon-actions">
         <button type="button" class="btn" id="coupon-apply" ${applied ? "disabled" : ""}>${applied ? `${icon("check")}Cupom aplicado` : "Aplicar cupom"}</button>
-        <a class="link" href="#/catalogo?promo=1">Ver promoções</a>
+        <a class="link tall" href="#/catalogo?promo=1">Ver promoções</a>
       </div>
     </section>`;
 }
