@@ -135,6 +135,7 @@ $("#drawer").addEventListener("click", (e) => {
   if (e.target.closest("a")) closeDrawer();
 });
 $("#cart-btn").addEventListener("click", openDrawer);
+$("#theme-btn").addEventListener("click", toggleTheme);
 $("#drawer-close").addEventListener("click", closeDrawer);
 $("#modal-close").addEventListener("click", closeModal);
 $("#sheet-close").addEventListener("click", closeSheet);
@@ -159,8 +160,9 @@ initSearch();
 bus.on(updateHeader);
 window.addEventListener("hashchange", router);
 // Outra aba mudou os dados: atualiza o cabeçalho e redesenha a rota atual
-window.addEventListener("storage", () => { updateHeader(); render(); });
+window.addEventListener("storage", () => { applyTheme(); updateHeader(); render(); });
 
 auth.ensureAdmin();
+applyTheme();
 updateHeader();
 router();

@@ -4,7 +4,7 @@
 // Ícones
 //   icon(nome) → string SVG (currentColor, traço 1,75px, aria-hidden). Nomes:
 //     buscar, coracao, conta, sacola, inicio, grade, fechar, mais, menos, seta-esquerda,
-//     seta-direita, chevron, filtro, compartilhar, check, lixeira, presente, caminhao, regua
+//     seta-direita, chevron, filtro, compartilhar, check, lixeira, presente, caminhao, regua, lua, sol
 //
 // Avisos e título
 //   toast(msg, { action, onAction })  aviso; com ação fica 6s (ex.: "Ver sacola", "Desfazer"), sem ação 3s
@@ -36,6 +36,7 @@
 //
 // Cabeçalho e busca
 //   updateHeader()                contadores, nome da conta e gaveta aberta
+//   applyTheme()  toggleTheme()   aplica o tema salvo (trama_theme) / alterna entre claro e escuro
 //   openSearch()  closeSearch()   busca (popover no desktop, tela cheia no celular)
 //   initSearch()                  liga os eventos da busca (main.js chama uma vez)
 //
@@ -66,6 +67,8 @@ const ICONS = {
   presente: `<path d="M4 9h16v4H4zM5.500 13v7h13v-7M12 9v11"/><path d="M12 9c-2.500 0-4.500-.8-4.500-2.700 0-2.200 3.300-2.500 4.500 2.700 1.200-5.200 4.500-4.900 4.500-2.700C16.500 8.200 14.500 9 12 9Z"/>`,
   caminhao: `<path d="M2.500 6h11v10h-11zM13.500 10h4l3 3.200V16h-7"/><circle cx="7" cy="17.500" r="1.900"/><circle cx="17" cy="17.500" r="1.900"/>`,
   regua: `<path d="M3 16 16 3l5 5L8 21l-5-5Z"/><path d="m7 12 2 2M10 9l2 2M13 6l2 2"/>`,
+  lua: `<path d="M20 14.200A8 8 0 0 1 9.800 4a8 8 0 1 0 10.200 10.200Z"/>`,
+  sol: `<circle cx="12" cy="12" r="4"/><path d="M12 2.500v2.500M12 19v2.500M2.500 12H5M19 12h2.500M5.300 5.300l1.800 1.800M16.900 16.900l1.800 1.800M5.300 18.700l1.800-1.800M16.900 7.100l1.800-1.800"/>`,
 };
 const icon = (name) => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name] || ""}</svg>`;
 
@@ -426,6 +429,22 @@ function updateHeader() {
   const user = auth.current();
   $("#account-label").textContent = user ? user.name.split(" ")[0] : "Entrar";
   if (!$("#drawer-veil").hidden) renderDrawer();
+}
+
+// ===== Tema (claro | escuro) =====
+// O tema fica em <html data-theme>; as cores trocam em css/tokens.css. O botão mostra o tema para o qual ele leva.
+function applyTheme() {
+  const dark = store.get(KEYS.theme, "claro") === "escuro";
+  if (dark) document.documentElement.dataset.theme = "escuro"; else delete document.documentElement.dataset.theme;
+  const btn = $("#theme-btn");
+  btn.innerHTML = icon(dark ? "sol" : "lua");
+  btn.setAttribute("aria-label", dark ? "Ativar modo claro" : "Ativar modo escuro");
+  btn.title = btn.getAttribute("aria-label");
+}
+
+function toggleTheme() {
+  store.set(KEYS.theme, store.get(KEYS.theme, "claro") === "escuro" ? "claro" : "escuro");
+  applyTheme();
 }
 
 // ===== Busca =====

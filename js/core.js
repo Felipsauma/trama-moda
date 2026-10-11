@@ -12,7 +12,7 @@ const KEYS = {
   users: "trama_users", session: "trama_session", cart: "trama_cart", orders: "trama_orders",
   stock: "trama_stock", favs: "trama_favs", recent: "trama_recent", reviews: "trama_reviews",
   ship: "trama_ship", coupon: "trama_coupon",
-  catalog: "trama_catalog", searches: "trama_searches", measures: "trama_measures", waitlist: "trama_waitlist", gift: "trama_gift",
+  catalog: "trama_catalog", searches: "trama_searches", measures: "trama_measures", waitlist: "trama_waitlist", gift: "trama_gift", theme: "trama_theme",
 };
 
 // ===== Barramento de eventos (o domínio avisa, a interface escuta) =====

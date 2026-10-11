@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="css/account.css">
   <link rel="stylesheet" href="css/order.css">
   <link rel="stylesheet" href="css/admin.css">
+  <!-- Aplica o tema salvo antes do primeiro desenho, para a página não piscar clara -->
+  <script>try { if (JSON.parse(localStorage.getItem("trama_theme")) === "escuro") document.documentElement.dataset.theme = "escuro"; } catch {}</script>
 </head>
 <body>
   <a class="skip" id="skip" href="#app">Pular para o conteúdo</a>
@@ -47,6 +49,7 @@
       </div>
 
       <div class="top-actions">
+        <button type="button" class="icon-btn" id="theme-btn" aria-label="Ativar modo escuro"></button>
         <a href="#/favoritos" class="icon-btn top-fav" id="fav-link" aria-label="Favoritos">
           <span data-icon="coracao"></span>
           <span class="count" id="fav-count" hidden>0</span>

@@ -93,6 +93,55 @@
   }
 }
 
+/* Tema escuro: o botão do cabeçalho grava <html data-theme="escuro">. Papel e anil trocam de lugar;
+   as derivadas acima se recalculam sozinhas. Só na tela: a impressão continua clara. */
+@media screen {
+  :root[data-theme="escuro"] {
+    color-scheme: dark;
+    --papel: #0F1433;
+    --nevoa: #1B2250;
+    --linha: #323B6E;
+    --anil: #E8EBFA;
+    --anil-forte: #FFFFFF;
+    --chumbo: #A4ACD0;
+    --pitanga: #FF8091;
+    --folha: #5FD39C;
+    --veu: rgb(0 0 0 / 0.62);
+    --sombra: 0 18px 48px rgb(0 0 0 / 0.5);
+
+    --fio-feminino: #E47FAA;
+    --fio-masculino: #73A6EE;
+    --fio-calcados: #6FC389;
+    --fio-acessorios: #E2B63A;
+
+    /* Os retalhos continuam claros: as fotos dependem do fundo claro (multiply) */
+    --retalho: #DDE1F0;
+  }
+
+  /* Superfícies que continuam claras no tema escuro (retalhos com foto e açafrão):
+     dentro delas valem as cores do tema claro. */
+  :root[data-theme="escuro"] :is(.thumb, .pcard-swatch, .patch-swatch, .gallery-mosaic-item, .mobile-carousel-slide, .coupon-band, .tag.sale, .toast-action) {
+    --papel: #FFFFFF;
+    --nevoa: #EEF0F7;
+    --linha: #D4D9E8;
+    --anil: #1B2559;
+    --anil-forte: #111A44;
+    --chumbo: #5A6285;
+    --pitanga: #C81E3A;
+    --folha: #1E7A4C;
+    color: var(--anil);
+  }
+
+  /* Rodapé: no tema escuro vira um painel um tom acima do fundo, com texto claro */
+  :root[data-theme="escuro"] .foot {
+    --anil: #1B2250;
+    --papel: #E8EBFA;
+    --nevoa: #FFFFFF;
+    --papel-suave: rgb(from var(--papel) r g b / 0.72);
+    --papel-fio: rgb(from var(--papel) r g b / 0.2);
+  }
+}
+
 [data-cat="feminino"] { --retalho: var(--retalho-feminino); --fio: var(--fio-feminino); }
 [data-cat="masculino"] { --retalho: var(--retalho-masculino); --fio: var(--fio-masculino); }
 [data-cat="calcados"] { --retalho: var(--retalho-calcados); --fio: var(--fio-calcados); }
